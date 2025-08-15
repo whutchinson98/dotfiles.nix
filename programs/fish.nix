@@ -27,9 +27,6 @@
       cbr = "cargo build --release";
       cr = "cargo run";
       ct = "cargo test";
-
-      # Uncategorized aliases
-      cleanfnm = "rm -rf $FNM_LIBRARY/node-versions/.downloads";
     };
 
     shellInit = ''
@@ -39,7 +36,6 @@
       # Environment variables
       set -gx TERM screen-256color
       set -gx GO_PATH $HOME/go/bin
-      set -gx FNM_LIBRARY "$HOME/.local/share/fnm"
       set -gx DOCKER_GATEWAY_HOST 172.17.0.1
       set -gx NVIM (which nvim)
       set -gx RIPGREP_CONFIG_PATH $HOME/.ripgreprc
@@ -59,24 +55,12 @@
       test -d $GO_PATH; and fish_add_path $GO_PATH
       test -d $JAVA_HOME/bin; and fish_add_path $JAVA_HOME/bin
       test -d $DOTNET_ROOT; and fish_add_path $DOTNET_ROOT
-      test -d $FNM_LIBRARY; and fish_add_path $FNM_LIBRARY
 
       # Key bindings
       bind \cf 'fish -c "~/scripts/tmux-sessionizer"'
 
       # Initialize tools
-      fnm env --use-on-cd | source
       starship init fish | source
-
-      # Set NODE_PATH after fnm has run
-      set -gx NODE_PATH (which node)
-
-      # FNM setup
-      set FNM_PATH "/home/hutch/.local/share/fnm"
-      if test -d "$FNM_PATH"
-        set PATH "$FNM_PATH" $PATH
-        fnm env | source
-      end
 
       # Rustup/Cargo setup
       if test -d "$HOME/.cargo"

@@ -1,5 +1,5 @@
 { config, pkgs, ... }:
 
 {
-  home.packages = with pkgs; [ fnm rustup ];
+  home.packages = with pkgs; [ nodejs_24 rustup ];
 }
