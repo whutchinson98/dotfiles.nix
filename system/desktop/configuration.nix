@@ -5,11 +5,10 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [
-      # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -57,7 +56,8 @@
   users.users.hutch = {
     isNormalUser = true;
     description = "hutch";
-    extraGroups = [ "networkmanager" "wheel" "video" "disk" "storage" "input" "audio" ];
+    extraGroups =
+      [ "networkmanager" "wheel" "video" "disk" "storage" "input" "audio" ];
     packages = with pkgs; [ ];
     shell = pkgs.fish;
   };
@@ -75,6 +75,7 @@
     firefox
     wl-clipboard
     unzip
+    zip
     gcc
     lxqt.lxqt-policykit # Lightweight polkit agent
     pavucontrol
