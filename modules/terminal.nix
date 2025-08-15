@@ -10,5 +10,5 @@
     ../programs/starship.nix
     ../programs/tmux.nix
   ];
-  home.packages = with pkgs; [ eza fzf ];
+  home.packages = with pkgs; [ eza fzf just ];
 }
