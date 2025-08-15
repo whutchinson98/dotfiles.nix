@@ -5,12 +5,12 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -54,16 +54,22 @@
   users.users.hutch = {
     isNormalUser = true;
     description = "hutch";
-    extraGroups = [ "networkmanager" "wheel" "video" "disk" "storage" "input" "audio" ];
-    packages = with pkgs; [];
+    extraGroups =
+      [ "networkmanager" "wheel" "video" "disk" "storage" "input" "audio" ];
+    packages = with pkgs; [ ];
+    shell = pkgs.fish;
   };
 
   users.users.work = {
-isNormalUser = true;
-description = "work";
-extraGroups = ["networkmanager" "wheel" "video" "disk" "storage" "input" "audio"];
-packages = with pkgs; [];
-};
+    isNormalUser = true;
+    description = "work";
+    extraGroups =
+      [ "networkmanager" "wheel" "video" "disk" "storage" "input" "audio" ];
+    packages = with pkgs; [ ];
+    shell = pkgs.fish;
+  };
+
+  programs.fish.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -76,8 +82,8 @@ packages = with pkgs; [];
     curl
     git
     wl-clipboard
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    #  wget
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
