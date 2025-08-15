@@ -82,9 +82,17 @@
     curl
     git
     wl-clipboard
+    docker
+    docker-buildx
     #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #  wget
   ];
+
+  # Docker
+  virtualisation.docker.enable = true;
+  virtualisation.docker.enableOnBoot = true;
+  virtualisation.docker.autoPrune.enable = true;
+  virtualisation.docker.rootless.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

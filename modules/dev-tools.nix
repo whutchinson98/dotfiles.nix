@@ -2,5 +2,5 @@
 
 {
   imports = [ ../programs/pulumi.nix ];
-  home.packages = with pkgs; [ awscli2 doppler docker-compose ];
+  home.packages = with pkgs; [ awscli2 doppler docker-compose cargo-lambda ];
 }
