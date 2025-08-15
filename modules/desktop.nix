@@ -12,6 +12,7 @@
     jetbrains.datagrip
     postman
     spotify
+    networkmanagerapplet
   ];
 
   imports = [
