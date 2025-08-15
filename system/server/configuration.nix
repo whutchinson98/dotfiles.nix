@@ -50,12 +50,22 @@
     variant = "";
   };
 
+  users.groups.docker = { };
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.hutch = {
     isNormalUser = true;
     description = "hutch";
-    extraGroups =
-      [ "networkmanager" "wheel" "video" "disk" "storage" "input" "audio" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "video"
+      "disk"
+      "storage"
+      "input"
+      "audio"
+      "docker"
+    ];
     packages = with pkgs; [ ];
     shell = pkgs.fish;
   };
@@ -63,8 +73,16 @@
   users.users.work = {
     isNormalUser = true;
     description = "work";
-    extraGroups =
-      [ "networkmanager" "wheel" "video" "disk" "storage" "input" "audio" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "video"
+      "disk"
+      "storage"
+      "input"
+      "audio"
+      "docker"
+    ];
     packages = with pkgs; [ ];
     shell = pkgs.fish;
   };
