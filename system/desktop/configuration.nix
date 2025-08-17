@@ -102,6 +102,7 @@
     gcc
     lxqt.lxqt-policykit # Lightweight polkit agent
     pavucontrol
+    sddm-astronaut
   ];
 
   programs._1password.enable = true;
