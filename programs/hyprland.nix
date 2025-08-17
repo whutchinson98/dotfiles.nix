@@ -40,6 +40,7 @@
         "systemctl --user start pipewire.service && systemctl --user start pipewire-pulse.service && systemctl --user start wireplumber.service"
         "sleep 2 && wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && sleep 0.5 && wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
         "waybar & hyprpaper"
+        "nm-applet"
         "$browser & $terminal & 1password & $notes"
       ];
 
