@@ -34,6 +34,7 @@
       "$tickets" = "linear-desktop";
       "$fileManager" = "dolphin";
       "$menu" = "rofi -show combi -combi-modi 'run,drun' -modi combi";
+      # wofi --show drun,run --allow-images --image-size 20 --allow-markup --insensitive
 
       # Autostart
       exec-once = [

@@ -20,6 +20,7 @@
         symbols = {
           Macos = " ";
           Arch = "󰣇 ";
+          NixOS = " ";
         };
       };
 

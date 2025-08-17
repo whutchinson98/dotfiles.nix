@@ -13,6 +13,7 @@
     postman
     spotify
     networkmanagerapplet
+    thunderbird
   ];
 
   imports = [

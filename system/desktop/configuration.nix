@@ -12,6 +12,18 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # Use the latest kernel for better AMD support
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  # AMD graphics configuration
+  hardware.graphics = { enable = true; };
+
+  # AMD specific kernel parameters
+  boot.kernelParams = [
+    "amd_pstate=active" # Better AMD power management
+    "amdgpu.dc=1" # Enable Display Core
+  ];
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -107,7 +119,7 @@
     pulse.enable = true;
   };
 
-  hardware.graphics.enable = true;
+  # hardware.graphics.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
