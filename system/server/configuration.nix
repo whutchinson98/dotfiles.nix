@@ -50,6 +50,17 @@
     variant = "";
   };
 
+  # Enable automatic garbage collection
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
+  # Also clean up user profiles
+  nix.settings.auto-optimise-store = true;
+
+  boot.loader.systemd-boot.configurationLimit = 5;
+
   users.groups.docker = { };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
