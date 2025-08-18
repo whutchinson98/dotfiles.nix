@@ -3,7 +3,6 @@
     inputs.zen-browser.homeModules.beta
     ../../modules/terminal.nix
     ../../modules/desktop.nix
-    ../../modules/languages.nix
   ];
 
   home.stateVersion = "25.05";
