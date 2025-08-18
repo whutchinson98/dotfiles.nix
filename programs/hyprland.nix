@@ -1,7 +1,13 @@
 { config, pkgs, ... }:
 
 {
-  home.packages = with pkgs; [ hyprpaper hyprlock hypridle brightnessctl ];
+  home.packages = with pkgs; [
+    hyprpaper
+    hyprlock
+    hypridle
+    brightnessctl
+    hyprcursor
+  ];
   wayland.windowManager.hyprland = {
     enable = true;
 
