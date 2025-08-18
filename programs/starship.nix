@@ -11,7 +11,14 @@
 
       # Custom format
       format =
-        "$os$hostname$directory$git_branch$git_status$fill$cmd_duration $time$line_break$character";
+        "$os$hostname$nix_shell$directory$git_branch$git_status$fill$cmd_duration $time$line_break$character";
+
+      nix_shell = {
+        impure_msg = "[impure shell](bold red)";
+        pure_msg = "[pure shell](bold green)";
+        unknown_msg = "[unknown shell](bold yellow)";
+        format = "via [☃️ $state( \($name\))](bold blue) ";
+      };
 
       # OS configuration
       os = {
