@@ -11,3 +11,4 @@ vim.o.ignorecase = true
 vim.o.mouse = 'nvi'
 vim.o.swapfile = false
 vim.o.completeopt = 'menu,menuone,noinsert'
+vim.o.colorcolumn = "80"
