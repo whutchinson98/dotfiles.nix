@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Redis nodes for docker redis cluster
 sudo tee -a /etc/hosts << EOF

@@ -38,10 +38,10 @@ return {
     -- enable servers that you already have installed without mason
     servers = {
       "rust_analyzer",
-      "lua_ls",
-      "lua-language-server",
-      "stylua",
-      "nil_ls",  -- This is how nil appears in nvim-lspconfig
+      -- "lua_ls",
+      -- "lua-language-server",
+      -- "stylua",
+      -- "nil_ls",  -- This is how nil appears in nvim-lspconfig
     },
     -- customize language server configuration options passed to `lspconfig`
     ---@diagnostic disable: missing-fields

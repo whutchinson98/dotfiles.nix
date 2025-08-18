@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "Removing stale branches"
 git branch | awk '{print $1}' | xargs git branch -D

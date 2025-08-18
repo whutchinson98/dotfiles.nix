@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "This will remove all Neovim data:"
 echo "  ~/.local/share/nvim"
