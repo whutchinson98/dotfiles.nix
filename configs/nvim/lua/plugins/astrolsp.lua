@@ -40,6 +40,8 @@ return {
       "rust_analyzer",
       "nil_ls",  -- This is how nil appears in nvim-lspconfig
       "gopls",
+      "ts_ls",
+      "biome",
     },
     -- customize language server configuration options passed to `lspconfig`
     ---@diagnostic disable: missing-fields
