@@ -1,6 +1,5 @@
 ---@type LazySpec
 return {
-  -- use mason-lspconfig to configure LSP installations
   {
     "tpope/vim-fugitive",
     config = function()
