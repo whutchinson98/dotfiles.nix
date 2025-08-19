@@ -35,4 +35,11 @@ vim.keymap.set(
   { desc = "create vertical split" }
 )
 
+vim.keymap.set(
+  "n",
+  "<leader>c",
+  ":bdelete<CR>",
+  { desc = "close current buffer" }
+)
+
 -- TODO: yank
