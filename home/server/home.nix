@@ -1,7 +1,6 @@
 { config, pkgs, ... }: {
   imports = [
     ../../modules/terminal.nix
-    ../../modules/languages.nix
     ../../modules/dev-tools.nix
   ];
 
