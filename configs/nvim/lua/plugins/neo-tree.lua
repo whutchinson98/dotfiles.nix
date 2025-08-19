@@ -19,6 +19,10 @@ return {
         },
         never_show = {},
       },
+      follow_current_file = {
+        enabled = true,
+        leave_dirs_open = true,
+      },
     },
   },
   lazy = false,
@@ -26,7 +30,7 @@ return {
     vim.keymap.set(
       "n",
       "<leader>o",
-      ':Neotree toggle<CR>',
+      ':Neotree reveal<CR>',
       { desc = "toggle neotree" }
     )
   end,
