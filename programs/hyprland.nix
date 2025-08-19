@@ -20,16 +20,16 @@
 
       # Workspace monitor assignments
       workspace = [
-        "1, monitor:DP-4"
-        "2, monitor:DP-4"
-        "3, monitor:DP-4"
-        "4, monitor:DP-4"
-        "5, monitor:DP-4"
-        "6, monitor:DP-4"
-        "7, monitor:DP-4"
-        "8, monitor:DP-4"
-        "9, monitor:DP-4"
-        "10, monitor:DP-4"
+        "1, monitor:DP-3"
+        "2, monitor:DP-3"
+        "3, monitor:DP-3"
+        "4, monitor:DP-3"
+        "5, monitor:DP-3"
+        "6, monitor:DP-3"
+        "7, monitor:DP-3"
+        "8, monitor:DP-3"
+        "9, monitor:DP-3"
+        "10, monitor:DP-3"
         "11, monitor:eDP-1"
       ];
 

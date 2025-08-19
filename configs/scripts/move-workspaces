@@ -3,5 +3,5 @@
 echo "Moving workspaces to monitor"
 
 for i in {1..10}; do
-    hyprctl dispatch moveworkspacetomonitor $i DP-4
+    hyprctl dispatch moveworkspacetomonitor $i DP-3
 done
