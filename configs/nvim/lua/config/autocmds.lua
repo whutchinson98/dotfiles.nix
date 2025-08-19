@@ -16,6 +16,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
         -- defaults:
         -- https://neovim.io/doc/user/news-0.11.html#_defaults
         map("<leader>lf", vim.lsp.buf.format, "Format")
+        map("gd", vim.lsp.buf.declaration, "Goto Declaration")
 
         local function client_supports_method(client, method, bufnr)
                 return client:supports_method(method, bufnr)
