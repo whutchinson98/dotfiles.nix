@@ -13,6 +13,6 @@ return {
 		'selene.yml',
 	},
   setup = {
-    capabilities = capabilities
+    capabilities = capabilities,
   }
 }

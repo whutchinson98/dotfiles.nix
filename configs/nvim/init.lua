@@ -1,9 +1,7 @@
 require("config.lazy")
 
 -- TODO: programmatically build lsps
-vim.lsp.enable("luals")
-vim.lsp.enable("rust_analyzer")
-vim.lsp.enable("nix")
+vim.lsp.enable({"lua_ls", "rust_analyzer", "nix"})
 
 require("options")
 require("config.keys")
