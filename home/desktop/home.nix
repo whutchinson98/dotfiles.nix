@@ -7,7 +7,9 @@
 
   home.stateVersion = "25.05";
 
-  home.packages = with pkgs; [ ];
+  home.packages = with pkgs; [ 
+      inputs.github-notifier.packages.${pkgs.system}.default
+  ];
 
   home.file = { };
 

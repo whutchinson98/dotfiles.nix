@@ -11,7 +11,7 @@
         modules-center = [ ];
         modules-right = [
           "tray"
-          # "custom/github"
+          "custom/github"
           "pulseaudio"
           "memory"
           "temperature#cpu"
