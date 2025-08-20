@@ -1,5 +1,3 @@
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
 return {
 	cmd = { 'lua-language-server' },
 	filetypes = { 'lua' },
@@ -13,6 +11,5 @@ return {
 		'selene.yml',
 	},
   setup = {
-    capabilities = capabilities,
   }
 }
