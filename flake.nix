@@ -10,10 +10,10 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    github-notifier = {
-      url = "github:whutchinson98/github-notifier";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # github-notifier = {
+    #   url = "github:whutchinson98/github-notifier";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
   outputs =
     {

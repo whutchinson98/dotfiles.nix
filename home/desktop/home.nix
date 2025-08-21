@@ -8,12 +8,15 @@
   home.stateVersion = "25.05";
 
   home.packages = with pkgs; [ 
-      inputs.github-notifier.packages.${pkgs.system}.default
+    #inputs.github-notifier.packages.${pkgs.system}.default
   ];
 
   home.file = { };
 
-  home.sessionVariables = { EDITOR = "nvim"; };
+
+  home.sessionVariables = { 
+    EDITOR = "nvim"; 
+  };
 
   programs.home-manager.enable = true;
 }
