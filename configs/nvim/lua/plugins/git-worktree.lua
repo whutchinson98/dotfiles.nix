@@ -1,7 +1,7 @@
 ---@type LazySpec
 return {
-  "polarmutex/git-worktree.nvim",
-  version = "^2",
+  "whutchinson98/git-worktree.nvim",
+  -- version = "^2",
   dependencies = { "nvim-lua/plenary.nvim" },
   enabled = true,
   config = function()
