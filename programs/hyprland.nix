@@ -6,8 +6,18 @@
     hyprlock
     hypridle
     brightnessctl
-    hyprcursor
   ];
+
+  home.pointerCursor = {
+    enable = true;
+    name = "Bibata-Modern-Classic";  # Use the actual theme name
+    package = pkgs.bibata-cursors;   # Use the cursor theme package
+    size = 24;
+    hyprcursor = {
+      enable = true;
+    };
+  };
+
   wayland.windowManager.hyprland = {
     enable = true;
 
@@ -54,8 +64,6 @@
       # Environment variables
       env = [
         "XDG_CURRENT_DESKTOP,Hyprland"
-        "XCURSOR_SIZE,24"
-        "HYPRCURSOR_SIZE,24"
       ];
 
       # General settings
