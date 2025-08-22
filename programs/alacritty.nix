@@ -27,6 +27,16 @@
 
       terminal = { osc52 = "CopyPaste"; };
 
+      keyboard = {
+        bindings = [
+          {
+            key = "Space";
+            mods = "Control";
+            action = "ToggleViMode";
+          }
+        ];
+      };
+
       # Gruvbox Dark theme
       colors = {
         primary = {
