@@ -11,7 +11,7 @@
 
       # Custom format
       format =
-        "$os$hostname$nix_shell$directory$git_branch$git_status$fill$cmd_duration $time$line_break$character";
+        "$os$hostname$nix_shell$directory$fill$cmd_duration $time$line_break$character";
 
       nix_shell = {
         impure_msg = "[impure shell](bold red)";
