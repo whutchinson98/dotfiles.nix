@@ -22,6 +22,9 @@
         "git branch | awk '{print $1}' | xargs git branch -D && git fetch -p";
       gitlfsfix = "git rm --cached -r . && git reset --hard";
 
+      # Nix
+      nd = "nix develop -c $SHELL";
+
       # Cargo aliases
       cb = "cargo build";
       cbr = "cargo build --release";
