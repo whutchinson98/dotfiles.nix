@@ -13,7 +13,7 @@
     postman
     spotify
     networkmanagerapplet
-    thunderbird
+    protonmail-desktop
   ];
 
   imports = [

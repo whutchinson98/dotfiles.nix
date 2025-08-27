@@ -188,6 +188,7 @@
         "$mainMod, P, exec, $menu"
         "$mainMod SHIFT, J, togglesplit,"
         "$mainMod, B, exec, hyprshot -m region --clipboard-only"
+        "$mainMod, F, fullscreen"
 
         # Focus movement
         "$mainMod, H, movefocus, l"
