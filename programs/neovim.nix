@@ -1,12 +1,17 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
-let nvimConfigPath = ../configs/nvim;
-in {
-  programs.neovim = { enable = true; };
+let
+  nvimConfigPath = ../configs/nvim;
+in
+{
+  programs.neovim = {
+    enable = true;
+  };
 
-  home.packages = with pkgs; [ 
-    nixd 
-    nixfmt-rfc-style 
+  home.packages = with pkgs; [
+    nixd
+    nixfmt-rfc-style
+    tree-sitter
   ];
 
   home.file.".config/nvim" = {

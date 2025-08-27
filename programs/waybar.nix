@@ -1,5 +1,3 @@
-{ config, pkgs, ... }:
-
 {
   programs.waybar = {
     enable = true;
@@ -7,7 +5,10 @@
       mainBar = {
         height = 24;
         spacing = 0;
-        modules-left = [ "clock" "hyprland/workspaces" ];
+        modules-left = [
+          "clock"
+          "hyprland/workspaces"
+        ];
         modules-center = [ ];
         modules-right = [
           "tray"
@@ -62,20 +63,30 @@
           tooltip = false;
         };
 
-        memory = { format = "  {}%"; };
+        memory = {
+          format = "  {}%";
+        };
 
         "temperature#cpu" = {
           hwmon-path = "/sys/class/hwmon/hwmon2/temp1_input";
           critical-threshold = 70;
           format = " {temperatureC}°C";
-          format-icons = [ "" "" "" ];
+          format-icons = [
+            ""
+            ""
+            ""
+          ];
         };
 
         "temperature#gpu" = {
           hwmon-path = "/sys/class/hwmon/hwmon1/temp1_input";
           critical-threshold = 80;
           format = "  {temperatureC}°C";
-          format-icons = [ "" "" "" ];
+          format-icons = [
+            ""
+            ""
+            ""
+          ];
         };
 
         pulseaudio = {
@@ -85,7 +96,13 @@
           format-muted = " {format_source}";
           format-source = "{volume}% ";
           format-source-muted = "";
-          format-icons = { default = [ "" "" "" ]; };
+          format-icons = {
+            default = [
+              ""
+              ""
+              ""
+            ];
+          };
           on-click = "pavucontrol";
         };
 
@@ -97,7 +114,13 @@
             critical = 15;
           };
           format = "{capacity}% {icon}";
-          format-icons = [ "" "" "" "" "" ];
+          format-icons = [
+            ""
+            ""
+            ""
+            ""
+            ""
+          ];
           max-length = 25;
         };
       };

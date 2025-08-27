@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -10,8 +10,8 @@
 
   home.pointerCursor = {
     enable = true;
-    name = "Bibata-Modern-Classic";  # Use the actual theme name
-    package = pkgs.bibata-cursors;   # Use the cursor theme package
+    name = "Bibata-Modern-Classic"; # Use the actual theme name
+    package = pkgs.bibata-cursors; # Use the cursor theme package
     size = 24;
     hyprcursor = {
       enable = true;
@@ -26,7 +26,10 @@
       "ecosystem:no_update_news" = true;
 
       # Monitors
-      monitor = [ "eDP-1,2256x1504@60,auto,1.0" ",preferred,auto,auto" ];
+      monitor = [
+        "eDP-1,2256x1504@60,auto,1.0"
+        ",preferred,auto,auto"
+      ];
 
       # Workspace monitor assignments
       workspace = [
@@ -138,7 +141,9 @@
       };
 
       # Master layout
-      master = { new_status = "master"; };
+      master = {
+        new_status = "master";
+      };
 
       # Misc
       misc = {
@@ -156,11 +161,15 @@
         follow_mouse = 1;
         sensitivity = 0;
 
-        touchpad = { natural_scroll = false; };
+        touchpad = {
+          natural_scroll = false;
+        };
       };
 
       # Gestures
-      gestures = { workspace_swipe = false; };
+      gestures = {
+        workspace_swipe = false;
+      };
 
       # Device config
       device = {

@@ -1,11 +1,11 @@
-{ config, pkgs, ... }:
-
 {
   programs.alacritty = {
     enable = true;
 
     settings = {
-      env = { TERM = "screen-256color"; };
+      env = {
+        TERM = "screen-256color";
+      };
 
       font = {
         size = 10;
@@ -23,9 +23,13 @@
         };
       };
 
-      selection = { save_to_clipboard = true; };
+      selection = {
+        save_to_clipboard = true;
+      };
 
-      terminal = { osc52 = "CopyPaste"; };
+      terminal = {
+        osc52 = "CopyPaste";
+      };
 
       keyboard = {
         bindings = [

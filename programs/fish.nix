@@ -1,5 +1,3 @@
-{ config, pkgs, ... }:
-
 {
   programs.fish = {
     enable = true;
@@ -16,10 +14,8 @@
       gs = "git status";
       glo = "git log --oneline";
       gwtc = "git config --get remote.origin.fetch";
-      gwtf = ''
-        git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"'';
-      cleangit =
-        "git branch | awk '{print $1}' | xargs git branch -D && git fetch -p";
+      gwtf = ''git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"'';
+      cleangit = "git branch | awk '{print $1}' | xargs git branch -D && git fetch -p";
       gitlfsfix = "git rm --cached -r . && git reset --hard";
 
       # Nix

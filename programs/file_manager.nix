@@ -1,1 +1,4 @@
-{ config, pkgs, ... }: { home.packages = with pkgs.kdePackages; [ dolphin ]; }
+{ pkgs, ... }:
+{
+  home.packages = with pkgs.kdePackages; [ dolphin ];
+}

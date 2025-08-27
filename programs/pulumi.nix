@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -7,4 +7,3 @@
     pulumiPackages.pulumi-aws-native
   ];
 }
-

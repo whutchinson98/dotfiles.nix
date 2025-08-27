@@ -1,5 +1,3 @@
-{ config, pkgs, ... }:
-
 {
   programs.starship = {
     enable = true;
@@ -10,8 +8,7 @@
       add_newline = false;
 
       # Custom format
-      format =
-        "$os$hostname$nix_shell$directory$fill$cmd_duration $time$line_break$character";
+      format = "$os$hostname$nix_shell$directory$fill$cmd_duration $time$line_break$character";
 
       nix_shell = {
         impure_msg = "[impure shell](bold red)";
@@ -39,7 +36,9 @@
       };
 
       # Fill configuration
-      fill = { symbol = " "; };
+      fill = {
+        symbol = " ";
+      };
 
       # Character configuration
       character = {
@@ -54,7 +53,9 @@
       };
 
       # Package configuration
-      package = { disabled = true; };
+      package = {
+        disabled = true;
+      };
 
       # Git status configuration
       git_status = {
@@ -64,7 +65,9 @@
       };
 
       # Golang configuration
-      golang = { symbol = " "; };
+      golang = {
+        symbol = " ";
+      };
     };
   };
 }
