@@ -2,7 +2,7 @@ return {
   'stevearc/oil.nvim',
   ---@module 'oil'
   ---@type oil.SetupOpts
-  opts = { 
+  opts = {
   },
   -- Optional dependencies
   dependencies = { { "echasnovski/mini.icons", opts = {} } },
