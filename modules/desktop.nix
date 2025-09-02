@@ -14,6 +14,7 @@
     spotify
     networkmanagerapplet
     protonmail-desktop
+    obs-studio
   ];
 
   imports = [
