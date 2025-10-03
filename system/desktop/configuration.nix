@@ -10,13 +10,39 @@
     ./hardware-configuration.nix
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Use the latest kernel for better AMD support
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # AMD graphics configuration
-  hardware.graphics = { enable = true; };
+  hardware.graphics = {
+    enable = true;
+  };
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        # Shows battery charge of connected devices on supported
+        # Bluetooth adapters. Defaults to 'false'.
+        Experimental = false;
+        # When enabled other devices can connect faster to us, however
+        # the tradeoff is increased power consumption. Defaults to
+        # 'false'.
+        FastConnectable = false;
+      };
+      Policy = {
+        # Enable all controllers when they are found. This includes
+        # adapters present on start as well as adapters that are plugged
+        # in later on. Defaults to 'true'.
+        AutoEnable = true;
+      };
+    };
+  };
 
   # AMD specific kernel parameters
   boot.kernelParams = [
@@ -74,13 +100,21 @@
   boot.loader.systemd-boot.configurationLimit = 5;
 
   services.tailscale.enable = true;
+  services.blueman.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.hutch = {
     isNormalUser = true;
     description = "hutch";
-    extraGroups =
-      [ "networkmanager" "wheel" "video" "disk" "storage" "input" "audio" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "video"
+      "disk"
+      "storage"
+      "input"
+      "audio"
+    ];
     packages = with pkgs; [ ];
     shell = pkgs.fish;
   };
