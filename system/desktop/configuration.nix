@@ -27,6 +27,7 @@
     powerOnBoot = true;
     settings = {
       General = {
+        Enable = "Source,Sink,Media,Socket";  # Add this line
         # Shows battery charge of connected devices on supported
         # Bluetooth adapters. Defaults to 'false'.
         Experimental = false;
@@ -162,6 +163,7 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    wireplumber.enable = true;
   };
 
   # hardware.graphics.enable = true;

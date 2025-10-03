@@ -167,9 +167,9 @@
       };
 
       # Gestures
-      gestures = {
-        workspace_swipe = false;
-      };
+      # gestures = {
+      #   workspace_swipe = false;
+      # };
 
       # Device config
       device = {
