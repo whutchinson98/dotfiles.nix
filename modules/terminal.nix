@@ -9,6 +9,7 @@
     ../programs/scripts.nix
     ../programs/starship.nix
     ../programs/tmux.nix
+    ../programs/yazi.nix
   ];
   home.packages = with pkgs; [ eza fzf just ];
 }
