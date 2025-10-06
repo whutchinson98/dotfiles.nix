@@ -2,6 +2,7 @@
 
 {
   home.packages = with pkgs; [
+    rofi
     hyprpaper
     hyprlock
     hypridle

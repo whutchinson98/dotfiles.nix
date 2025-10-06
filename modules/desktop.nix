@@ -3,7 +3,6 @@
 {
   home.packages = with pkgs; [
     notify
-    rofi
     hyprshot
     hyprprop
     signal-desktop
@@ -20,6 +19,7 @@
   imports = [
     ../programs/hyprland.nix
     ../programs/waybar.nix
+    ../programs/niri.nix
     ../programs/file_manager.nix
     ../programs/alacritty.nix
     ../programs/fonts.nix

@@ -10,6 +10,7 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    niri.url = "github:sodiboo/niri-flake";
     # github-notifier = {
     #   url = "github:whutchinson98/github-notifier";
     #   inputs.nixpkgs.follows = "nixpkgs";
@@ -20,6 +21,7 @@
       self,
       nixpkgs,
       home-manager,
+      niri,
       ...
     }@inputs:
     let
