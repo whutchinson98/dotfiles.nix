@@ -145,6 +145,32 @@
     wireplumber.enable = true;
   };
 
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-hyprland
+    ];
+    config = {
+      common.default = "hyprland";
+      niri = {
+        default = "hyprland";
+        "org.freedesktop.impl.portal.ScreenCast" = "hyprland";
+        "org.freedesktop.impl.portal.Screenshot" = "hyprland";
+      };
+    };
+  };
+
+  # xdg.portal = {
+  #   enable = true;
+  #   extraPortals = [
+  #     pkgs.xdg-desktop-portal-gtk
+  #     pkgs.xdg-desktop-portal-hyprland
+  #     pkgs.xdg-desktop-portal-gnome
+  #     pkgs.xdg-desktop-portal-wlr
+  #   ];
+  # };
+
   # hardware.graphics.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are

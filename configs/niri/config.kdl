@@ -264,6 +264,7 @@ layout {
 
 spawn-at-startup "waybar"
 spawn-at-startup "xwayland-satellite" 
+// spawn-at-startup "systemctl --user start pipewire.service && systemctl --user start pipewire-pulse.service && systemctl --user start wireplumber.service"
 
 spawn-at-startup "zen"
 spawn-at-startup "alacritty"
@@ -535,7 +536,7 @@ binds {
     Mod+6 { focus-workspace 6; }
     Mod+7 { focus-workspace "chat"; }
     Mod+8 { focus-workspace 8; }
-    Mod+9 { focus-workspace 0; }
+    Mod+9 { focus-workspace 9; }
     Mod+0 { focus-workspace "password"; }
     Mod+Shift+1 { move-column-to-workspace "browser"; }
     Mod+Shift+2 { move-column-to-workspace "code"; }
