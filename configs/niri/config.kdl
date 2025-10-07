@@ -262,12 +262,6 @@ layout {
     }
 }
 
-// Add lines like this to spawn processes at startup.
-// Note that running niri as a session supports xdg-desktop-autostart,
-// which may be more convenient to use.
-// See the binds section below for more spawn examples.
-
-// This line starts waybar, a commonly used bar for Wayland compositors.
 spawn-at-startup "waybar"
 spawn-at-startup "xwayland-satellite" 
 
@@ -330,17 +324,52 @@ animations {
     // block-out-from "screencast"
 }
 
+workspace "browser" {
+}
+
+workspace "code" {
+}
+
+workspace "db" {
+}
+
+workspace "docs" {
+}
+
+workspace "chat" {
+}
+
+workspace "password" {
+}
+
 // Match windows with title containing "Mozilla Firefox",
 // or windows with app ID containing "Alacritty".
 window-rule {
     match app-id="Alacritty"
-    open-on-workspace 2
+    open-on-workspace "code"
 }
 
 window-rule {
     match app-id="zen"
-    open-on-workspace 1
+    open-on-workspace "browser"
 }
+
+window-rule {
+    match app-id="obsidian"
+    open-on-workspace "docs"
+}
+
+window-rule {
+    match app-id="signal-desktop"
+    open-on-workspace "chat"
+}
+
+window-rule {
+    match app-id="1password"
+    open-on-workspace "password"
+}
+
+
 
 // Example: enable rounded corners for all windows.
 // (This example rule is commented out with a "/-" in front.)
@@ -498,24 +527,26 @@ binds {
     //
     // For example, with 2 workspaces + 1 empty, indices 3, 4, 5 and so on
     // will all refer to the 3rd workspace.
-    Mod+1 { focus-workspace 1; }
-    Mod+2 { focus-workspace 2; }
-    Mod+3 { focus-workspace 3; }
+    Mod+1 { focus-workspace "browser"; }
+    Mod+2 { focus-workspace "code"; }
+    Mod+3 { focus-workspace "db"; }
     Mod+4 { focus-workspace 4; }
-    Mod+5 { focus-workspace 5; }
+    Mod+5 { focus-workspace "docs"; }
     Mod+6 { focus-workspace 6; }
-    Mod+7 { focus-workspace 7; }
+    Mod+7 { focus-workspace "chat"; }
     Mod+8 { focus-workspace 8; }
-    Mod+9 { focus-workspace 9; }
-    Mod+Shift+1 { move-column-to-workspace 1; }
-    Mod+Shift+2 { move-column-to-workspace 2; }
-    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+9 { focus-workspace 0; }
+    Mod+0 { focus-workspace "password"; }
+    Mod+Shift+1 { move-column-to-workspace "browser"; }
+    Mod+Shift+2 { move-column-to-workspace "code"; }
+    Mod+Shift+3 { move-column-to-workspace "db"; }
     Mod+Shift+4 { move-column-to-workspace 4; }
-    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+5 { move-column-to-workspace "docs"; }
     Mod+Shift+6 { move-column-to-workspace 6; }
-    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+7 { move-column-to-workspace "chat"; }
     Mod+Shift+8 { move-column-to-workspace 8; }
     Mod+Shift+9 { move-column-to-workspace 9; }
+    Mod+Shift+0 { move-column-to-workspace "password"; }
 
     // Alternatively, there are commands to move just a single window:
     // Mod+Ctrl+1 { move-window-to-workspace 1; }
