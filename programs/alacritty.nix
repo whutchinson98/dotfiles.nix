@@ -1,10 +1,13 @@
 {
   programs.alacritty = {
     enable = true;
-
     settings = {
       env = {
         TERM = "screen-256color";
+      };
+
+      window = {
+        decorations = "none";
       };
 
       font = {
