@@ -315,7 +315,7 @@ animations {
 
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)
-/-window-rule {
+-window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     match app-id=r#"^org\.gnome\.World\.Secrets$"#
 
@@ -334,6 +334,9 @@ workspace "code" {
 workspace "db" {
 }
 
+workspace "recording" {
+}
+
 workspace "docs" {
 }
 
@@ -343,8 +346,6 @@ workspace "chat" {
 workspace "password" {
 }
 
-// Match windows with title containing "Mozilla Firefox",
-// or windows with app ID containing "Alacritty".
 window-rule {
     match app-id="Alacritty"
     open-on-workspace "code"
@@ -356,17 +357,42 @@ window-rule {
 }
 
 window-rule {
+    match app-id="Postman"
+    open-on-workspace "db"
+}
+
+window-rule {
+    match app-id="jetbrains-datagrip"
+    open-on-workspace "db"
+}
+
+window-rule {
+   match app-id="com.obsproject.Studio"
+   open-on-workspace "recording"
+}
+
+window-rule {
     match app-id="obsidian"
     open-on-workspace "docs"
 }
 
 window-rule {
-    match app-id="signal-desktop"
+    match app-id="signal"
     open-on-workspace "chat"
 }
 
 window-rule {
-    match app-id="1password"
+    match app-id="discord"
+    open-on-workspace "chat"
+}
+
+window-rule {
+    match app-id="Proton Mail"
+    open-on-workspace "chat"
+}
+
+window-rule {
+    match app-id="1Password"
     open-on-workspace "password"
 }
 
@@ -531,7 +557,7 @@ binds {
     Mod+1 { focus-workspace "browser"; }
     Mod+2 { focus-workspace "code"; }
     Mod+3 { focus-workspace "db"; }
-    Mod+4 { focus-workspace 4; }
+    Mod+4 { focus-workspace "recording"; }
     Mod+5 { focus-workspace "docs"; }
     Mod+6 { focus-workspace 6; }
     Mod+7 { focus-workspace "chat"; }
@@ -541,7 +567,7 @@ binds {
     Mod+Shift+1 { move-column-to-workspace "browser"; }
     Mod+Shift+2 { move-column-to-workspace "code"; }
     Mod+Shift+3 { move-column-to-workspace "db"; }
-    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+4 { move-column-to-workspace "recording"; }
     Mod+Shift+5 { move-column-to-workspace "docs"; }
     Mod+Shift+6 { move-column-to-workspace 6; }
     Mod+Shift+7 { move-column-to-workspace "chat"; }
