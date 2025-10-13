@@ -1,3 +1,4 @@
+{ niri-waybar, system, ... }:
 {
   programs.waybar = {
     enable = true;
@@ -8,6 +9,7 @@
         modules-left = [
           "clock"
           "hyprland/workspaces"
+          "cffi/niri-waybar"
         ];
         modules-center = [ ];
         modules-right = [
@@ -18,6 +20,10 @@
           "temperature#cpu"
           "battery"
         ];
+
+        "cffi/niri-waybar" = {
+          module_path = "${niri-waybar.packages.${system}.default}/lib/libniri_waybar.so";
+        };
 
         "hyprland/workspaces" = {
           disable-scroll = true;
@@ -392,6 +398,19 @@
 
       #custom-github.none {
         color: #8b949e; /* Gray for no notifications */
+      }
+      .niri_workspace {
+        padding: 0 10px;
+        background-color: #282828;
+        color: #ebdbb2;
+        box-shadow: inset 0 -3px transparent;
+        border: none;
+        border-radius: 0;
+      }
+
+      .niri_workspace.focused {
+        background-color: #3c3836;
+        color: #ebdbb2;
       }
     '';
   };

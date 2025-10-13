@@ -11,6 +11,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     niri.url = "github:sodiboo/niri-flake";
+    niri-waybar.url = "github:whutchinson98/niri-waybar";
     # github-notifier = {
     #   url = "github:whutchinson98/github-notifier";
     #   inputs.nixpkgs.follows = "nixpkgs";
@@ -22,6 +23,7 @@
       nixpkgs,
       home-manager,
       niri,
+      niri-waybar,
       ...
     }@inputs:
     let
@@ -37,7 +39,10 @@
             ./system/desktop/configuration.nix
             home-manager.nixosModules.home-manager
             {
-              home-manager.extraSpecialArgs = { inherit inputs; };
+              home-manager.extraSpecialArgs = { 
+                inherit inputs system; 
+                niri-waybar = inputs.niri-waybar;
+              };
               home-manager.useGlobalPkgs = true;
               home-manager.users.hutch = {
                 imports = [ ./home/desktop/home.nix ];
