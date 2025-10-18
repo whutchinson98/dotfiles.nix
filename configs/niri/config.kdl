@@ -350,11 +350,13 @@ window-rule {
 window-rule {
     match app-id="Postman"
     open-on-workspace "db"
+    open-focused true
 }
 
 window-rule {
     match app-id="jetbrains-datagrip"
     open-on-workspace "db"
+    open-focused true
 }
 
 window-rule {
@@ -365,26 +367,31 @@ window-rule {
 window-rule {
     match app-id="obsidian"
     open-on-workspace "docs"
+    open-focused true
 }
 
 window-rule {
     match app-id="signal"
     open-on-workspace "chat"
+    open-focused true
 }
 
 window-rule {
     match app-id="discord"
     open-on-workspace "chat"
+    open-focused true
 }
 
 window-rule {
     match app-id="Proton Mail"
     open-on-workspace "chat"
+    open-focused true
 }
 
 window-rule {
     match app-id="Spotify"
     open-on-workspace "music"
+    open-focused true
 }
 
 window-rule {
