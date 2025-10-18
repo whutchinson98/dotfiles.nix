@@ -23,6 +23,16 @@
 
         "cffi/niri-waybar" = {
           module_path = "${niri-waybar.packages.${system}.default}/lib/libniri_waybar.so";
+          format-icons = {
+            browser = "󰈹";
+            code = "";
+            db = "";
+            recording = "";
+            docs = "󰎚";
+            chat = "󰍡";
+            music = "󰓇";
+            password = "";
+          };
         };
 
         "hyprland/workspaces" = {

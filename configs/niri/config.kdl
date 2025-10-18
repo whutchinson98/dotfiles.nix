@@ -331,6 +331,9 @@ workspace "docs" {
 workspace "chat" {
 }
 
+workspace "music" {
+}
+
 workspace "password" {
 }
 
@@ -377,6 +380,11 @@ window-rule {
 window-rule {
     match app-id="Proton Mail"
     open-on-workspace "chat"
+}
+
+window-rule {
+    match app-id="Spotify"
+    open-on-workspace "music"
 }
 
 window-rule {
@@ -549,9 +557,9 @@ binds {
     Mod+5 { focus-workspace "docs"; }
     Mod+6 { focus-workspace 6; }
     Mod+7 { focus-workspace "chat"; }
-    Mod+8 { focus-workspace 8; }
-    Mod+9 { focus-workspace 9; }
-    Mod+0 { focus-workspace "password"; }
+    Mod+8 { focus-workspace "music"; }
+    Mod+9 { focus-workspace "password"; }
+    Mod+0 { focus-workspace 0; }
     Mod+Shift+1 { move-column-to-workspace "browser"; }
     Mod+Shift+2 { move-column-to-workspace "code"; }
     Mod+Shift+3 { move-column-to-workspace "db"; }
@@ -559,9 +567,9 @@ binds {
     Mod+Shift+5 { move-column-to-workspace "docs"; }
     Mod+Shift+6 { move-column-to-workspace 6; }
     Mod+Shift+7 { move-column-to-workspace "chat"; }
-    Mod+Shift+8 { move-column-to-workspace 8; }
-    Mod+Shift+9 { move-column-to-workspace 9; }
-    Mod+Shift+0 { move-column-to-workspace "password"; }
+    Mod+Shift+8 { move-column-to-workspace "music"; }
+    Mod+Shift+9 { move-column-to-workspace "password"; }
+    Mod+Shift+0 { move-column-to-workspace 0; }
 
     // Alternatively, there are commands to move just a single window:
     // Mod+Ctrl+1 { move-window-to-workspace 1; }
