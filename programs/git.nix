@@ -2,9 +2,11 @@
 {
   programs.git = {
     enable = true;
-    userName = "Hutch";
-    userEmail = if config.home.username == "work" then "hutch@macro.com" else "will@thehutchery.com";
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Hutch";
+        email = if config.home.username == "work" then "hutch@macro.com" else "will@thehutchery.com";
+      };
       url = {
         "git@github.com:macro-inc/" = {
           insteadOf = "macro:";
