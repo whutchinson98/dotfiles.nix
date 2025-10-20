@@ -1,4 +1,10 @@
-{ config, pkgs, inputs, ... }: {
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
+{
   imports = [
     inputs.zen-browser.homeModules.beta
     ../../modules/terminal.nix
@@ -7,15 +13,15 @@
 
   home.stateVersion = "25.05";
 
-  home.packages = with pkgs; [ 
+  home.packages = with pkgs; [
     #inputs.github-notifier.packages.${pkgs.system}.default
   ];
 
   home.file = { };
 
-
-  home.sessionVariables = { 
-    EDITOR = "nvim"; 
+  home.sessionVariables = {
+    EDITOR = "nvim";
+    DEFAULT_BROWSER = "/home/hutch/.nix-profile/bin/zen";
   };
 
   programs.home-manager.enable = true;

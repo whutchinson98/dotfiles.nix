@@ -1,4 +1,5 @@
-{ config, pkgs, ... }: {
+{ config, pkgs, ... }:
+{
   imports = [
     ../../modules/terminal.nix
     ../../modules/dev-tools.nix
@@ -10,7 +11,9 @@
 
   home.file = { };
 
-  home.sessionVariables = { EDITOR = "nvim"; };
+  home.sessionVariables = {
+    EDITOR = "nvim";
+  };
 
   programs.home-manager.enable = true;
 }
