@@ -7,3 +7,6 @@ switch_zephyr:
 
 switch_olympus:
   just switch .#olympus
+
+update:
+    nix flake update
