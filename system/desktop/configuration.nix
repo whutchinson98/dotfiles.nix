@@ -107,7 +107,6 @@
     wget
     curl
     git
-    firefox
     wl-clipboard
     unzip
     zip

@@ -4,6 +4,7 @@
     enable = true;
     settings = {
       mainBar = {
+        position = "bottom";
         height = 24;
         spacing = 0;
         modules-left = [
