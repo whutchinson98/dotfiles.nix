@@ -1,7 +1,7 @@
 require("config.lazy")
 
 -- TODO: programmatically build lsps
-vim.lsp.enable({"lua_ls", "rust_analyzer", "nixd", "ts_ls", "just_lsp"})
+vim.lsp.enable({"lua_ls", "rust_analyzer", "nixd", "ts_ls", "just_lsp", "gopls"})
 vim.diagnostic.config({
     -- virtual_lines = true,
     virtual_text = true,
