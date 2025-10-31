@@ -10,6 +10,8 @@
     ./hardware-configuration.nix
   ];
 
+  nix.settings.download-buffer-size = 536870912; # 512 MB (default is 64 MB)
+
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Bootloader.
