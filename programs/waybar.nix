@@ -18,6 +18,7 @@
           "custom/github"
           "pulseaudio"
           "memory"
+          "cpu"
           "temperature#cpu"
           "battery"
         ];

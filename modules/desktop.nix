@@ -6,7 +6,7 @@
     hyprshot
     hyprprop
     signal-desktop
-    discord
+    # discord
     obsidian
     jetbrains.datagrip
     postman
