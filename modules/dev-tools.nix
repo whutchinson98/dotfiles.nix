@@ -3,7 +3,6 @@
 {
   imports = [
     ../programs/pulumi.nix
-    ../programs/jujutsu.nix
   ];
   home.packages = with pkgs; [
     awscli2

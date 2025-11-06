@@ -10,6 +10,11 @@
     ../programs/starship.nix
     ../programs/tmux.nix
     ../programs/yazi.nix
+    ../programs/jujutsu.nix
   ];
-  home.packages = with pkgs; [ eza fzf just ];
+  home.packages = with pkgs; [
+    eza
+    fzf
+    just
+  ];
 }
