@@ -6,10 +6,10 @@
     hyprshot
     hyprprop
     signal-desktop
-    discord
     obsidian
     jetbrains.datagrip
     postman
+    bruno
     spotify
     networkmanagerapplet
     protonmail-desktop
