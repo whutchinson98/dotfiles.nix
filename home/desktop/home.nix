@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  pkgs-stable,
   inputs,
   ...
 }:
@@ -13,9 +14,7 @@
 
   home.stateVersion = "25.05";
 
-  home.packages = with pkgs; [
-    #inputs.github-notifier.packages.${pkgs.system}.default
-  ];
+  nixpkgs.config.allowUnfree = true;
 
   home.file = { };
 

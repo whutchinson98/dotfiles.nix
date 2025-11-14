@@ -1,19 +1,24 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  pkgs-stable,
+  ...
+}:
 
 {
   home.packages = with pkgs; [
     notify
     hyprshot
     hyprprop
-    signal-desktop
-    obsidian
-    jetbrains.datagrip
-    postman
-    bruno
-    spotify
+    pkgs-stable.signal-desktop
+    pkgs-stable.obsidian
+    pkgs-stable.jetbrains.datagrip
+    pkgs-stable.postman
+    pkgs-stable.bruno
+    pkgs-stable.spotify
     networkmanagerapplet
-    protonmail-desktop
-    obs-studio
+    pkgs-stable.protonmail-desktop
+    pkgs-stable.obs-studio
   ];
 
   imports = [

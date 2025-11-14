@@ -2,6 +2,7 @@
   description = "dotfiles flake";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -21,6 +22,7 @@
     {
       self,
       nixpkgs,
+      nixpkgs-stable,
       home-manager,
       niri,
       niri-waybar,
@@ -29,6 +31,10 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
+      pkgs-stable = import nixpkgs-stable {
+        inherit system;
+        config.allowUnfree = true;
+      };
     in
     {
       nixosConfigurations = {
@@ -39,9 +45,10 @@
             ./system/desktop/configuration.nix
             home-manager.nixosModules.home-manager
             {
-              home-manager.extraSpecialArgs = { 
-                inherit inputs system; 
+              home-manager.extraSpecialArgs = {
+                inherit inputs system;
                 niri-waybar = inputs.niri-waybar;
+                pkgs-stable = pkgs-stable;
               };
               home-manager.useGlobalPkgs = true;
               home-manager.users.hutch = {
