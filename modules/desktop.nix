@@ -10,14 +10,14 @@
     notify
     hyprshot
     hyprprop
-    pkgs-stable.signal-desktop
-    pkgs-stable.obsidian
+    signal-desktop
+    obsidian
     pkgs-stable.jetbrains.datagrip
     pkgs-stable.postman
     pkgs-stable.bruno
     pkgs-stable.spotify
     networkmanagerapplet
-    pkgs-stable.protonmail-desktop
+    protonmail-desktop
     pkgs-stable.obs-studio
   ];
 
