@@ -30,7 +30,7 @@ return {
     vim.keymap.set(
       "n",
       "<leader>o",
-      ':Neotree reveal<CR>',
+      ':Neotree toggle<CR>',
       { desc = "toggle neotree" }
     )
   end,
