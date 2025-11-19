@@ -14,7 +14,7 @@
     obsidian
     pkgs-stable.jetbrains.datagrip
     pkgs-stable.postman
-    pkgs-stable.bruno
+    bruno
     pkgs-stable.spotify
     networkmanagerapplet
     protonmail-desktop
