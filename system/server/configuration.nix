@@ -12,7 +12,10 @@
 
   nix.settings.download-buffer-size = 536870912; # 512 MB (default is 64 MB)
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -137,7 +140,13 @@
   # };
 
   # List services that you want to enable:
-  services.tailscale.enable = true;
+  services.tailscale = {
+    enable = true;
+    permitCertUid = [
+      "hutch"
+      "work"
+    ];
+  };
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
