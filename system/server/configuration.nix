@@ -142,9 +142,10 @@
   # List services that you want to enable:
   services.tailscale = {
     enable = true;
-    permitCertUid = [
-      "hutch"
-      "work"
+    extraUpFlags = [
+      "--ssh"
+      "--operator=hutch"
+      "--operator=work"
     ];
   };
 
