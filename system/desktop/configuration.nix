@@ -21,6 +21,8 @@
   # Use the latest kernel for better AMD support
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
+  services.fwupd.enable = true;
+
   # AMD graphics configuration
   hardware.graphics = {
     enable = true;
