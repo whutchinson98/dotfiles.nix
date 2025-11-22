@@ -32,6 +32,11 @@
       # Disable fish greeting
       set -U fish_greeting ""
 
+      # Load 1Password CLI plugins
+      if test -f ~/.config/op/plugins.sh
+        source ~/.config/op/plugins.sh
+      end
+
       # Environment variables
       set -gx TERM screen-256color
       set -gx GO_PATH $HOME/go/bin
