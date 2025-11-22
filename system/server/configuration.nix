@@ -174,7 +174,10 @@
   programs._1password.enable = true;
   programs._1password-gui = {
     enable = true;
-    polkitPolicyOwners = [ "hutch", "work" ];
+    polkitPolicyOwners = [
+      "hutch"
+      "work"
+    ];
   };
 
   services.displayManager.sddm.enable = true;
