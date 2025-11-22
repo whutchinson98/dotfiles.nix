@@ -178,7 +178,7 @@
       "hutch"
       "work"
     ];
-  };
+  }; 
 
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
