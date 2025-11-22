@@ -13,10 +13,6 @@
     };
     niri.url = "github:sodiboo/niri-flake";
     niri-waybar.url = "github:whutchinson98/niri-waybar";
-    # github-notifier = {
-    #   url = "github:whutchinson98/github-notifier";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
   };
   outputs =
     {
@@ -64,7 +60,11 @@
             ./system/server/configuration.nix
             home-manager.nixosModules.home-manager
             {
-              home-manager.extraSpecialArgs = { inherit inputs; };
+              home-manager.extraSpecialArgs = {
+                inherit inputs system;
+                niri-waybar = inputs.niri-waybar;
+                pkgs-stable = pkgs-stable;
+              };
               home-manager.useGlobalPkgs = true;
               home-manager.users.hutch = {
                 imports = [ ./home/server/home.nix ];
@@ -75,31 +75,6 @@
             }
           ];
         };
-      };
-
-      # Development shell for dotfiles
-      devShells.${system}.default = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          # Nix development
-          nil # Modern Nix LSP (replaces rnix-lsp)
-          nixpkgs-fmt # Nix formatter
-
-          # Lua development
-          lua-language-server
-          stylua
-
-          # build tools
-          just
-        ];
-
-        shellHook = ''
-          echo "🚀 Dotfiles development environment loaded!"
-          echo "Available tools:"
-          echo "  - nil (Nix LSP)"
-          echo "  - nixpkgs-fmt (Nix formatter)"
-          echo "  - lua-language-server (lua_ls)"
-          echo "  - stylua (Lua formatter)"
-        '';
       };
     };
 }

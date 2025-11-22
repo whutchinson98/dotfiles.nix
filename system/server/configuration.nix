@@ -2,7 +2,12 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  pkgs-stable,
+  ...
+}:
 
 {
   imports = [
@@ -15,6 +20,20 @@
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
+  ];
+
+  # Use the latest kernel for better AMD support
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  # AMD graphics configuration
+  hardware.graphics = {
+    enable = true;
+  };
+
+  # AMD specific kernel parameters
+  boot.kernelParams = [
+    "amd_pstate=active" # Better AMD power management
+    "amdgpu.dc=1" # Enable Display Core
   ];
 
   # Bootloader.
@@ -116,13 +135,13 @@
     curl
     git
     wl-clipboard
-    docker
-    docker-buildx
     unzip
     zip
     gcc
-    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    #  wget
+    lxqt.lxqt-policykit # Lightweight polkit agent
+    pavucontrol
+    docker
+    docker-buildx
   ];
 
   # Docker
@@ -151,6 +170,49 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
+  programs._1password.enable = true;
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [ "hutch", "work" ];
+  };
+
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
+
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
+  };
+
+  programs.niri.enable = true;
+
+  services.dbus.enable = true;
+  security.polkit.enable = true;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    wireplumber.enable = true;
+  };
+
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-hyprland
+    ];
+    config = {
+      common.default = "hyprland";
+      niri = {
+        default = "hyprland";
+        "org.freedesktop.impl.portal.ScreenCast" = "hyprland";
+        "org.freedesktop.impl.portal.Screenshot" = "hyprland";
+      };
+    };
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
