@@ -10,6 +10,6 @@
     docker-compose
     cargo-lambda
     claude-code
-    goose-cli
+    atac
   ];
 }
