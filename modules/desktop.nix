@@ -18,13 +18,13 @@
     pkgs-stable.spotify
     networkmanagerapplet
     protonmail-desktop
-    pkgs-stable.obs-studio
+    obs-studio
   ];
 
   imports = [
     ../programs/fonts.nix
-    ../programs/niri.nix
     ../programs/waybar.nix
+    ../programs/niri.nix
     ../programs/file_manager.nix
     ../programs/alacritty.nix
     ../programs/dunst.nix
