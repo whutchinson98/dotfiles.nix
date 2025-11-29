@@ -101,7 +101,6 @@
       "audio"
       "docker"
     ];
-    packages = with pkgs; [ ];
     shell = pkgs.fish;
   };
 
@@ -118,7 +117,6 @@
       "audio"
       "docker"
     ];
-    packages = with pkgs; [ ];
     shell = pkgs.fish;
   };
 
@@ -178,16 +176,17 @@
       "hutch"
       "work"
     ];
-  }; 
+  };
 
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
 
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true;
-  };
+  # programs.hyprland = {
+  #   enable = true;
+  #   xwayland.enable = true;
+  # };
 
+  # enable niri at a system level so it's picked up by SDDM
   programs.niri.enable = true;
 
   services.dbus.enable = true;
@@ -201,21 +200,21 @@
     wireplumber.enable = true;
   };
 
-  xdg.portal = {
-    enable = true;
-    xdgOpenUsePortal = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-hyprland
-    ];
-    config = {
-      common.default = "hyprland";
-      niri = {
-        default = "hyprland";
-        "org.freedesktop.impl.portal.ScreenCast" = "hyprland";
-        "org.freedesktop.impl.portal.Screenshot" = "hyprland";
-      };
-    };
-  };
+  # xdg.portal = {
+  #   enable = true;
+  #   xdgOpenUsePortal = true;
+  #   extraPortals = with pkgs; [
+  #     xdg-desktop-portal-hyprland
+  #   ];
+  #   config = {
+  #     common.default = "hyprland";
+  #     niri = {
+  #       default = "hyprland";
+  #       "org.freedesktop.impl.portal.ScreenCast" = "hyprland";
+  #       "org.freedesktop.impl.portal.Screenshot" = "hyprland";
+  #     };
+  #   };
+  # };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

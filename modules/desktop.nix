@@ -22,12 +22,11 @@
   ];
 
   imports = [
-    ../programs/hyprland.nix
-    ../programs/waybar.nix
+    ../programs/fonts.nix
     ../programs/niri.nix
+    ../programs/waybar.nix
     ../programs/file_manager.nix
     ../programs/alacritty.nix
-    ../programs/fonts.nix
     ../programs/dunst.nix
   ];
 
