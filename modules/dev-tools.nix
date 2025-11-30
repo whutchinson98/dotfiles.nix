@@ -11,5 +11,6 @@
     cargo-lambda
     claude-code
     atac
+    railway
   ];
 }
