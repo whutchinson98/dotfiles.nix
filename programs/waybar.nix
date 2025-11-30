@@ -25,16 +25,40 @@
 
         "cffi/niri-waybar" = {
           module_path = "${niri-waybar.packages.${system}.default}/lib/libniri_waybar.so";
-          format-icons = {
-            browser = "󰈹";
-            code = "";
-            db = "";
-            recording = "";
-            docs = "󰎚";
-            chat = "󰍡";
-            music = "󰓇";
-            password = "";
-          };
+          workspaces = [
+            {
+              name = "browser";
+              icon = "󰈹";
+            }
+            {
+              name = "code";
+              icon = "";
+            }
+            {
+              name = "db";
+              icon = "";
+            }
+            {
+              name = "recording";
+              icon = "";
+            }
+            {
+              name = "docs";
+              icon = "󰎚";
+            }
+            {
+              name = "chat";
+              icon = "󰍡";
+            }
+            {
+              name = "music";
+              icon = "󰓇";
+            }
+            {
+              name = "password";
+              icon = "";
+            }
+          ];
         };
 
         "hyprland/workspaces" = {
