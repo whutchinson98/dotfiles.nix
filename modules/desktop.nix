@@ -23,8 +23,8 @@
 
   imports = [
     ../programs/fonts.nix
-    ../programs/waybar.nix
     ../programs/niri.nix
+    ../programs/waybar.nix
     ../programs/file_manager.nix
     ../programs/alacritty.nix
     ../programs/dunst.nix
