@@ -60,12 +60,11 @@
       spawn-at-startup = [
         { command = [ "waybar" ]; }
         { command = [ "xwayland-satellite" ]; }
-        { command = [ "swww-daemon" ]; }
         {
           command = [
             "sh"
             "-c"
-            "swww img $HOME/backgrounds/gruvbox_astro.jpg"
+            "swww init && swww img $HOME/backgrounds/gruvbox_astro.jpg"
           ];
         }
         { command = [ "zen" ]; }
@@ -146,6 +145,7 @@
       ];
 
       binds = {
+        "Super+O".action.toggle-overview = { };
         "Mod+Shift+Slash".action.show-hotkey-overlay = { };
         "Mod+T".action.spawn = [ "alacritty" ];
         "Mod+P".action.spawn = [ "fuzzel" ];
