@@ -58,15 +58,15 @@
       };
 
       spawn-at-startup = [
-        { command = [ "waybar" ]; }
-        { command = [ "xwayland-satellite" ]; }
         {
           command = [
             "sh"
             "-c"
-            "swww init && swww img $HOME/backgrounds/gruvbox_astro.jpg"
+            "swww-daemon && swww img $HOME/backgrounds/gruvbox_astro.jpg"
           ];
         }
+        { command = [ "waybar" ]; }
+        { command = [ "xwayland-satellite" ]; }
         { command = [ "zen" ]; }
         { command = [ "alacritty" ]; }
         { command = [ "obsidian" ]; }
