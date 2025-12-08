@@ -88,9 +88,7 @@
     useRoutingFeatures = "client";
   };
 
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
-  services.blueman.enable = true;
+  users.groups.docker = { };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.hutch = {
@@ -104,8 +102,8 @@
       "storage"
       "input"
       "audio"
+      "docker"
     ];
-    packages = with pkgs; [ ];
     shell = pkgs.fish;
   };
 
@@ -115,7 +113,7 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    vim
     wget
     curl
     git
@@ -125,7 +123,15 @@
     gcc
     lxqt.lxqt-policykit # Lightweight polkit agent
     pavucontrol
+    docker
+    docker-buildx
   ];
+
+  # Docker
+  virtualisation.docker.enable = true;
+  virtualisation.docker.enableOnBoot = true;
+  virtualisation.docker.autoPrune.enable = true;
+  virtualisation.docker.rootless.enable = true;
 
   programs._1password.enable = true;
   programs._1password-gui = {
@@ -135,11 +141,6 @@
 
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
-
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true;
-  };
 
   programs.niri.enable = true;
 
@@ -154,22 +155,6 @@
     alsa.support32Bit = true;
     pulse.enable = true;
     wireplumber.enable = true;
-  };
-
-  xdg.portal = {
-    enable = true;
-    xdgOpenUsePortal = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-hyprland
-    ];
-    config = {
-      common.default = "hyprland";
-      niri = {
-        default = "hyprland";
-        "org.freedesktop.impl.portal.ScreenCast" = "hyprland";
-        "org.freedesktop.impl.portal.Screenshot" = "hyprland";
-      };
-    };
   };
 
   # hardware.graphics.enable = true;

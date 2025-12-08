@@ -9,6 +9,7 @@
   imports = [
     inputs.zen-browser.homeModules.beta
     ../../modules/terminal.nix
+    ../../modules/dev-tools.nix
     ../../modules/desktop.nix
   ];
 
@@ -18,9 +19,16 @@
 
   home.file = { };
 
+  programs.ssh = {
+    enable = true;
+    extraConfig = ''
+      Host *
+        IdentityAgent ~/.1password/agent.sock
+    '';
+  };
+
   home.sessionVariables = {
     EDITOR = "nvim";
-    DEFAULT_BROWSER = "/home/hutch/.nix-profile/bin/zen";
   };
 
   programs.home-manager.enable = true;
