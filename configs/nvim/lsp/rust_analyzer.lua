@@ -11,16 +11,13 @@ local function reload_workspace(bufnr)
     end, 0)
   end
 end
-
 local function is_library(fname)
   local user_home = vim.fs.normalize(vim.env.HOME)
   local cargo_home = os.getenv 'CARGO_HOME' or user_home .. '/.cargo'
   local registry = cargo_home .. '/registry/src'
   local git_registry = cargo_home .. '/git/checkouts'
-
   local rustup_home = os.getenv 'RUSTUP_HOME' or user_home .. '/.rustup'
   local toolchains = rustup_home .. '/toolchains'
-
   for _, item in ipairs { toolchains, registry, git_registry } do
     if vim.fs.relpath(item, fname) then
       local clients = vim.lsp.get_clients { name = 'rust_analyzer' }
@@ -28,7 +25,6 @@ local function is_library(fname)
     end
   end
 end
-
 return {
   cmd = { 'rust-analyzer' },
   filetypes = { 'rust' },
@@ -39,10 +35,8 @@ return {
       on_dir(reused_dir)
       return
     end
-
     local cargo_crate_dir = vim.fs.root(fname, { 'Cargo.toml' })
     local cargo_workspace_root
-
     if cargo_crate_dir == nil then
       on_dir(
         vim.fs.root(fname, { 'rust-project.json' })
@@ -50,17 +44,16 @@ return {
       )
       return
     end
-
     local cmd = {
       'cargo',
       'metadata',
       '--no-deps',
+      '--all-features',
       '--format-version',
       '1',
       '--manifest-path',
       cargo_crate_dir .. '/Cargo.toml',
     }
-
     vim.system(cmd, { text = true }, function(output)
       if output.code == 0 then
         if output.stdout then
@@ -69,7 +62,6 @@ return {
             cargo_workspace_root = vim.fs.normalize(result['workspace_root'])
           end
         end
-
         on_dir(cargo_workspace_root or cargo_crate_dir)
       else
         vim.schedule(function()
