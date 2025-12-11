@@ -28,7 +28,6 @@
     ../programs/file_manager.nix
     ../programs/alacritty.nix
     ../programs/dunst.nix
-    ../programs/helix.nix
   ];
 
   programs.zen-browser.enable = true;
