@@ -12,7 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     niri.url = "github:sodiboo/niri-flake";
-    niri-waybar.url = "github:whutchinson98/niri-waybar";
+    # niri-waybar.url = "github:whutchinson98/niri-waybar";
   };
   outputs =
     {
@@ -21,7 +21,7 @@
       nixpkgs-stable,
       home-manager,
       niri,
-      niri-waybar,
+      # niri-waybar,
       ...
     }@inputs:
     let
@@ -43,7 +43,7 @@
             {
               home-manager.extraSpecialArgs = {
                 inherit inputs system;
-                niri-waybar = inputs.niri-waybar;
+                # niri-waybar = inputs.niri-waybar;
                 pkgs-stable = pkgs-stable;
               };
               home-manager.useGlobalPkgs = true;
@@ -62,7 +62,7 @@
             {
               home-manager.extraSpecialArgs = {
                 inherit inputs system;
-                niri-waybar = inputs.niri-waybar;
+                # niri-waybar = inputs.niri-waybar;
                 pkgs-stable = pkgs-stable;
               };
               home-manager.useGlobalPkgs = true;

@@ -1,4 +1,4 @@
-{ niri-waybar, system, ... }:
+# { niri-waybar, system, ... }:
 {
   programs.waybar = {
     enable = true;
@@ -10,7 +10,7 @@
         modules-left = [
           "clock"
           "hyprland/workspaces"
-          "cffi/niri-waybar"
+          # "cffi/niri-waybar"
         ];
         modules-center = [ ];
         modules-right = [
@@ -23,63 +23,43 @@
           "battery"
         ];
 
-        "cffi/niri-waybar" = {
-          module_path = "${niri-waybar.packages.${system}.default}/lib/libniri_waybar.so";
-          workspaces = [
-            {
-              name = "browser";
-              icon = "󰈹";
-            }
-            {
-              name = "code";
-              icon = "";
-            }
-            {
-              name = "db";
-              icon = "";
-            }
-            {
-              name = "recording";
-              icon = "";
-            }
-            {
-              name = "docs";
-              icon = "󰎚";
-            }
-            {
-              name = "chat";
-              icon = "󰍡";
-            }
-            {
-              name = "music";
-              icon = "󰓇";
-            }
-            {
-              name = "password";
-              icon = "";
-            }
-          ];
-        };
-
-        "hyprland/workspaces" = {
-          disable-scroll = true;
-          all-outputs = true;
-          format = "{name}: {icon}";
-          format-icons = {
-            "1" = "󰈹";
-            "2" = "";
-            "3" = "";
-            "4" = "󰊯";
-            "5" = "󰎚";
-            "7" = "󰍡";
-            "8" = "";
-            "9" = "";
-            "10" = "";
-            urgent = "";
-            focused = "";
-            default = "";
-          };
-        };
+        # "cffi/niri-waybar" = {
+        #   module_path = "${niri-waybar.packages.${system}.default}/lib/libniri_waybar.so";
+        #   workspaces = [
+        #     {
+        #       name = "browser";
+        #       icon = "󰈹";
+        #     }
+        #     {
+        #       name = "code";
+        #       icon = "";
+        #     }
+        #     {
+        #       name = "db";
+        #       icon = "";
+        #     }
+        #     {
+        #       name = "recording";
+        #       icon = "";
+        #     }
+        #     {
+        #       name = "docs";
+        #       icon = "󰎚";
+        #     }
+        #     {
+        #       name = "chat";
+        #       icon = "󰍡";
+        #     }
+        #     {
+        #       name = "music";
+        #       icon = "󰓇";
+        #     }
+        #     {
+        #       name = "password";
+        #       icon = "";
+        #     }
+        #   ];
+        # };
 
         tray = {
           icon-size = 15;

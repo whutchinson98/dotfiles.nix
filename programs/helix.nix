@@ -3,6 +3,7 @@
   programs.helix = {
     enable = true;
     settings = {
+      theme = "gruvbox";
       editor = {
         bufferline = "multiple";
         file-picker = {
@@ -36,8 +37,14 @@
             "keep_primary_selection"
             "collapse_selection"
           ];
+          C-c = [
+            "keep_primary_selection"
+            "collapse_selection"
+          ];
         };
-
+        insert = {
+          C-c = "normal_mode";
+        };
       };
     };
     languages = {
