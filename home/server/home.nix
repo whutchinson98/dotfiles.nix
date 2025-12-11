@@ -1,7 +1,4 @@
 {
-  config,
-  pkgs,
-  pkgs-stable,
   inputs,
   ...
 }:
@@ -25,6 +22,13 @@
       Host *
         IdentityAgent ~/.1password/agent.sock
     '';
+  };
+
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      color-scheme = "prefer-dark";
+      enable-hot-corners = false;
+    };
   };
 
   home.sessionVariables = {
