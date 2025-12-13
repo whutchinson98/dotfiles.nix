@@ -19,6 +19,7 @@
     networkmanagerapplet
     protonmail-desktop
     obs-studio
+    neomutt
   ];
 
   imports = [
