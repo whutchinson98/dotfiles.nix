@@ -20,6 +20,7 @@
     protonmail-desktop
     obs-studio
     neomutt
+    libnotify
   ];
 
   imports = [
