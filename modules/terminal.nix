@@ -18,5 +18,6 @@
     eza
     fzf
     just
+    jq
   ];
 }
