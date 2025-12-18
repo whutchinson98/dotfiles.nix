@@ -21,6 +21,7 @@
     obs-studio
     neomutt
     libnotify
+    qutebrowser
   ];
 
   imports = [
