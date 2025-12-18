@@ -43,7 +43,7 @@
       set -gx DOCKER_GATEWAY_HOST 172.17.0.1
       set -gx NVIM (which nvim)
       set -gx RIPGREP_CONFIG_PATH $HOME/.ripgreprc
-      set -gx EDITOR "nvim"
+      set -gx EDITOR "hx"
 
       set -gx SSH_AUTH_SOCK $HOME/.1password/agent.sock
 
