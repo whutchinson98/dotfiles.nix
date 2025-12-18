@@ -41,6 +41,7 @@
             "keep_primary_selection"
             "collapse_selection"
           ];
+          minus = "file_picker_in_current_buffer_directory";
         };
         insert = {
           C-c = "normal_mode";
