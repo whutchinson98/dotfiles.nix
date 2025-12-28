@@ -37,6 +37,11 @@
             "keep_primary_selection"
             "collapse_selection"
           ];
+          space = {
+            s = {
+              l = "vsplit";
+            };
+          };
           C-c = [
             "keep_primary_selection"
             "collapse_selection"
