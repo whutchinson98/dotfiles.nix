@@ -22,6 +22,7 @@
     neomutt
     libnotify
     qutebrowser
+    brave
   ];
 
   imports = [
