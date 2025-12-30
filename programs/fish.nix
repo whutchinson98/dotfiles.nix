@@ -41,7 +41,7 @@
       set -gx TERM screen-256color
       set -gx GO_PATH $HOME/go/bin
       set -gx DOCKER_GATEWAY_HOST 172.17.0.1
-      set -gx NVIM (which nvim)
+      # set -gx NVIM (which nvim)
       set -gx RIPGREP_CONFIG_PATH $HOME/.ripgreprc
       set -gx EDITOR "hx"
 

@@ -4,7 +4,7 @@
   imports = [
     ../programs/fish.nix
     ../programs/git.nix
-    ../programs/neovim.nix
+    # ../programs/neovim.nix
     ../programs/ripgrep.nix
     ../programs/scripts.nix
     ../programs/starship.nix
