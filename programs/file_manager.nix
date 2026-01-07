@@ -1,4 +1,4 @@
 { pkgs, ... }:
 {
-  home.packages = with pkgs.kdePackages; [ dolphin ];
+  home.packages = [ pkgs.nautilus ];
 }
