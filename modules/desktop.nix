@@ -21,7 +21,6 @@
     obs-studio
     neomutt
     libnotify
-    qutebrowser
     brave
   ];
 

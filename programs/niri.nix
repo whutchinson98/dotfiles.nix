@@ -67,7 +67,7 @@
         }
         { command = [ "waybar" ]; }
         { command = [ "xwayland-satellite" ]; }
-        { command = [ "brave" ]; }
+        { command = [ "zen" ]; }
         { command = [ "alacritty" ]; }
         { command = [ "obsidian" ]; }
         { command = [ "1password" ]; }
