@@ -9,7 +9,6 @@
         spacing = 0;
         modules-left = [
           "clock"
-          "hyprland/workspaces"
           # "cffi/niri-waybar"
         ];
         modules-center = [ ];
