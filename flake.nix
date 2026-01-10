@@ -38,7 +38,7 @@
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
-            ./system/desktop/configuration.nix
+            ./system/zephyr/configuration.nix
             home-manager.nixosModules.home-manager
             {
               home-manager.extraSpecialArgs = {
@@ -48,7 +48,7 @@
               };
               home-manager.useGlobalPkgs = true;
               home-manager.users.hutch = {
-                imports = [ ./home/desktop/home.nix ];
+                imports = [ ./home/zephyr/home.nix ];
               };
             }
           ];
