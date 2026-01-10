@@ -57,7 +57,7 @@
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
-            ./system/server/configuration.nix
+            ./system/olympus/configuration.nix
             home-manager.nixosModules.home-manager
             {
               home-manager.extraSpecialArgs = {
@@ -67,10 +67,10 @@
               };
               home-manager.useGlobalPkgs = true;
               home-manager.users.hutch = {
-                imports = [ ./home/server/home.nix ];
+                imports = [ ./home/olympus/home.nix ];
               };
               home-manager.users.work = {
-                imports = [ ./home/server/home.nix ];
+                imports = [ ./home/olympus/home.nix ];
               };
             }
           ];
