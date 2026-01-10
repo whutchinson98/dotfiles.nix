@@ -3,6 +3,7 @@
 {
   imports = [
     ../programs/pulumi.nix
+    ../programs/direnv.nix
   ];
   home.packages = with pkgs; [
     awscli2
