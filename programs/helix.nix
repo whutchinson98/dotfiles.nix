@@ -33,13 +33,6 @@
       };
       keys = {
         normal = {
-          C-e = [
-            ":sh rm -f /tmp/helix-yazi-file"
-            ":insert-output yazi %{buffer_name} --chooser-file=/tmp/helix-yazi-file"
-            ":insert-output echo \"\x1b[?1049h\x1b[?2004h\" > /dev/tty"
-            ":open %sh{cat /tmp/helix-yazi-file}"
-            ":redraw"
-          ];
           esc = [
             "keep_primary_selection"
             "collapse_selection"
