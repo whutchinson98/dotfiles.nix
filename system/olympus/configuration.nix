@@ -105,6 +105,10 @@
     shell = pkgs.fish;
   };
 
+  services.udev.packages = [
+    pkgs.ledger-udev-rules
+  ];
+
   # Create the udev rules
   services.udev.extraRules = ''
     # Rules for Oryx web flashing and live training

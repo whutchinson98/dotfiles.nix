@@ -22,6 +22,7 @@
     neomutt
     libnotify
     brave
+    ledger-live-desktop
   ];
 
   imports = [
