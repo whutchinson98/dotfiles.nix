@@ -1,5 +1,6 @@
 {
   inputs,
+  pkgs,
   ...
 }:
 {
@@ -8,6 +9,10 @@
     ../../modules/terminal.nix
     ../../modules/dev-tools.nix
     ../../modules/desktop.nix
+  ];
+
+  home.packages = [
+    inputs.playwright-web-flake.packages.${pkgs.system}.playwright-driver
   ];
 
   home.stateVersion = "25.05";

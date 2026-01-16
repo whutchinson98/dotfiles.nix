@@ -1,3 +1,7 @@
+{inputs, pkgs, ... }:
+let
+  playwrightBrowsers = inputs.playwright-web-flake.packages.${pkgs.system}.playwright-driver.browsers;
+in
 {
   programs.fish = {
     enable = true;
@@ -80,7 +84,9 @@
     '';
 
     interactiveShellInit = ''
-      # Additional interactive shell configuration can go here
+      set -gx PLAYWRIGHT_BROWSERS_PATH '${playwrightBrowsers}'
+      set -gx PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD '1'
+      set -gx PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS 'true'
     '';
   };
 }
