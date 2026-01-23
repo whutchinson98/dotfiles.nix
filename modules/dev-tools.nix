@@ -14,7 +14,6 @@
     docker-compose
     cargo-lambda
     atac
-    railway
     sops
   ];
 }
