@@ -15,5 +15,6 @@
     cargo-lambda
     atac
     railway
+    sops
   ];
 }
