@@ -66,9 +66,6 @@
               home-manager.users.hutch = {
                 imports = [ ./home/olympus/home.nix ];
               };
-              home-manager.users.work = {
-                imports = [ ./home/olympus/home.nix ];
-              };
             }
           ];
         };

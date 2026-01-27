@@ -12,7 +12,7 @@
     ../programs/zellij.nix
     ../programs/yazi.nix
     ../programs/jujutsu.nix
-    ../programs/helix.nix
+    # ../programs/helix.nix
   ];
   home.packages = with pkgs; [
     eza

@@ -140,23 +140,6 @@
   # Create the plugdev group
   users.groups.plugdev = { };
 
-  users.users.work = {
-    isNormalUser = true;
-    description = "work";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "video"
-      "disk"
-      "storage"
-      "input"
-      "audio"
-      "docker"
-      "plugdev"
-    ];
-    shell = pkgs.fish;
-  };
-
   programs.fish.enable = true;
 
   # Allow unfree packages
@@ -199,7 +182,6 @@
     extraUpFlags = [
       "--ssh"
       "--operator=hutch"
-      "--operator=work"
     ];
   };
 
@@ -211,7 +193,6 @@
     enable = true;
     polkitPolicyOwners = [
       "hutch"
-      "work"
     ];
   };
 

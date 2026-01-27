@@ -37,7 +37,7 @@
   };
 
   home.sessionVariables = {
-    EDITOR = "hx";
+    EDITOR = "nvim";
   };
 
   programs.home-manager.enable = true;

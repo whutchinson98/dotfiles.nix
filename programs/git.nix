@@ -1,11 +1,10 @@
-{ config, ... }:
 {
   programs.git = {
     enable = true;
     settings = {
       user = {
+        email = "will@thehutchery.com";
         name = "Hutch";
-        email = if config.home.username == "work" then "hutch@macro.com" else "will@thehutchery.com";
       };
       url = {
         "git@github.com:macro-inc/" = {
