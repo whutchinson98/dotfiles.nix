@@ -67,7 +67,7 @@
         }
         { command = [ "waybar" ]; }
         { command = [ "xwayland-satellite" ]; }
-        { command = [ "zen" ]; }
+        { command = [ "brave" ]; }
         { command = [ "alacritty" ]; }
         { command = [ "obsidian" ]; }
         { command = [ "1password" ]; }
@@ -94,10 +94,6 @@
         {
           matches = [ { app-id = "Alacritty"; } ];
           open-on-workspace = "code";
-        }
-        {
-          matches = [ { app-id = "zen"; } ];
-          open-on-workspace = "browser";
         }
         {
           matches = [ { app-id = "brave-browser"; } ];

@@ -6,6 +6,12 @@
 }:
 
 {
+  xdg.desktopEntries.brave-browser = {
+    name = "Brave (Hidden)";
+    exec = "brave";
+    noDisplay = true;
+  };
+
   home.packages = with pkgs; [
     notify
     hyprshot
@@ -33,6 +39,4 @@
     ../programs/alacritty.nix
     ../programs/dunst.nix
   ];
-
-  programs.zen-browser.enable = true;
 }

@@ -7,7 +7,6 @@
 }:
 {
   imports = [
-    inputs.zen-browser.homeModules.beta
     ../../modules/terminal.nix
     ../../modules/dev-tools.nix
     ../../modules/desktop.nix

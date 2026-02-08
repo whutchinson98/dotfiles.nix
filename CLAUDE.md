@@ -64,7 +64,7 @@ flake.nix (entry point)
 ### Special Arguments
 
 Home-manager configs have access to:
-- `inputs`: Flake inputs (nixpkgs, home-manager, zen-browser, niri)
+- `inputs`: Flake inputs (nixpkgs, home-manager, niri)
 - `system`: Architecture string ("x86_64-linux")
 - `pkgs-stable`: Stable nixpkgs for select packages (DataGrip, Postman, Spotify)
 
