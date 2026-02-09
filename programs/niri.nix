@@ -100,16 +100,6 @@
           open-on-workspace = "browser";
         }
         {
-          matches = [ { app-id = "Postman"; } ];
-          open-on-workspace = "db";
-          open-focused = true;
-        }
-        {
-          matches = [ { app-id = "jetbrains-datagrip"; } ];
-          open-on-workspace = "db";
-          open-focused = true;
-        }
-        {
           matches = [ { app-id = "com.obsproject.Studio"; } ];
           open-on-workspace = "recording";
         }

@@ -6,24 +6,15 @@
 }:
 
 {
-  xdg.desktopEntries.brave-browser = {
-    name = "Brave (Hidden)";
-    exec = "brave";
-    noDisplay = true;
-  };
-
   home.packages = with pkgs; [
     notify
     hyprshot
     hyprprop
     signal-desktop
     obsidian
-    pkgs-stable.jetbrains.datagrip
-    pkgs-stable.postman
     bruno
     pkgs-stable.spotify
     networkmanagerapplet
-    protonmail-desktop
     obs-studio
     neomutt
     libnotify
