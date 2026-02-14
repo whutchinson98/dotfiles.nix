@@ -7,7 +7,7 @@
 let
   playwrightDriver = inputs.playwright-web-flake.packages.${pkgs.system}.playwright-driver;
   playwrightBrowsersPath = builtins.unsafeDiscardStringContext "${playwrightDriver.browsers}";
-  playwrightMcpConfig = {
+  mcpConfig = {
     playwright = {
       type = "stdio";
       command = "npx";
@@ -26,8 +26,12 @@ let
         PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH = "$PLAYWRIGHT_BROWSERS_PATH/chromium-1200/chrome-linux64/chrome";
       };
     };
+    linear-server = {
+      type = "http";
+      url = "https://mcp.linear.app/mcp";
+    };
   };
-  mcpConfigJson = builtins.toJSON playwrightMcpConfig;
+  mcpConfigJson = builtins.toJSON mcpConfig;
 in
 {
   home.packages = with pkgs; [
@@ -46,6 +50,6 @@ in
       '.mcpServers = $mcpServers' \
       "$CLAUDE_CONFIG" > "$CLAUDE_CONFIG.tmp" && \
     mv "$CLAUDE_CONFIG.tmp" "$CLAUDE_CONFIG"
-    $VERBOSE_ECHO "Claude Code Playwright MCP configuration updated"
+    $VERBOSE_ECHO "Claude Code MCP configuration updated"
   '';
 }
