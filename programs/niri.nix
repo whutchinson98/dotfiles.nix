@@ -69,7 +69,6 @@
         { command = [ "xwayland-satellite" ]; }
         { command = [ "brave" ]; }
         { command = [ "alacritty" ]; }
-        { command = [ "obsidian" ]; }
         { command = [ "1password" ]; }
       ];
 
