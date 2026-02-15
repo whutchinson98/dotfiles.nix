@@ -1,6 +1,6 @@
 {inputs, pkgs, ... }:
 let
-  playwrightBrowsers = inputs.playwright-web-flake.packages.${pkgs.system}.playwright-driver.browsers;
+  playwrightBrowsers = inputs.playwright-web-flake.packages.${pkgs.stdenv.hostPlatform.system}.playwright-driver.browsers;
 in
 {
   programs.fish = {

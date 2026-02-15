@@ -5,7 +5,7 @@
   ...
 }:
 let
-  playwrightDriver = inputs.playwright-web-flake.packages.${pkgs.system}.playwright-driver;
+  playwrightDriver = inputs.playwright-web-flake.packages.${pkgs.stdenv.hostPlatform.system}.playwright-driver;
   playwrightBrowsersPath = builtins.unsafeDiscardStringContext "${playwrightDriver.browsers}";
   mcpConfig = {
     playwright = {

@@ -30,14 +30,14 @@
     {
       nixosConfigurations = {
         "zephyr" = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
+            { nixpkgs.hostPlatform = "x86_64-linux"; }
             ./system/zephyr/configuration.nix
             home-manager.nixosModules.home-manager
             {
               home-manager.extraSpecialArgs = {
-                inherit inputs system;
+                inherit inputs;
                 pkgs-stable = pkgs-stable;
               };
               home-manager.useGlobalPkgs = true;
@@ -48,14 +48,14 @@
           ];
         };
         "olympus" = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
+            { nixpkgs.hostPlatform = "x86_64-linux"; }
             ./system/olympus/configuration.nix
             home-manager.nixosModules.home-manager
             {
               home-manager.extraSpecialArgs = {
-                inherit inputs system;
+                inherit inputs;
                 pkgs-stable = pkgs-stable;
               };
               home-manager.useGlobalPkgs = true;
