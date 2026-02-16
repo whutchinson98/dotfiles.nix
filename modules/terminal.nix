@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   imports = [
@@ -19,5 +19,6 @@
     fzf
     just
     jq
+    inputs.thrum.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 }

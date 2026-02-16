@@ -9,6 +9,10 @@
     };
     niri.url = "github:sodiboo/niri-flake";
     playwright-web-flake.url = "github:pietdevries94/playwright-web-flake";
+    thrum = {
+      url = "github:whutchinson98/thrum";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs =
     {
@@ -17,6 +21,7 @@
       nixpkgs-stable,
       home-manager,
       playwright-web-flake,
+      thrum,
       ...
     }@inputs:
     let
