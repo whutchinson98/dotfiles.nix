@@ -20,6 +20,7 @@
     libnotify
     brave
     ledger-live-desktop
+    dbeaver-bin
   ];
 
   imports = [
