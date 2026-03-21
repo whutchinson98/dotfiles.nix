@@ -11,13 +11,16 @@
     niri.url = "github:sodiboo/niri-flake";
     playwright-web-flake.url = "github:pietdevries94/playwright-web-flake";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
-    thrum = {
-      url = "github:whutchinson98/thrum";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-stable, home-manager, ... }@inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixpkgs-stable,
+      home-manager,
+      ...
+    }@inputs:
     let
       system = "x86_64-linux";
       pkgs-stable = import nixpkgs-stable {
@@ -26,35 +29,38 @@
       };
 
       # Helper to reduce boilerplate per host
-      mkHost = hostname: extraModules: nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = { inherit inputs; };
-        modules = [
-          { nixpkgs.hostPlatform = system; }
-          ./hosts/common.nix
-          ./hosts/${hostname}/configuration.nix
-          ./hosts/${hostname}/hardware-configuration.nix
-          ./modules/system/audio.nix
-          ./modules/system/desktop.nix
-          ./modules/system/docker.nix
-          ./modules/system/keyboard.nix
-          ./modules/system/fingerprint.nix
-          ./modules/system/tailscale.nix
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.extraSpecialArgs = { inherit inputs pkgs-stable; };
-            home-manager.useGlobalPkgs = true;
-            home-manager.users.hutch.imports = [ ./hosts/${hostname}/home.nix ];
-          }
-        ] ++ extraModules;
-      };
+      mkHost =
+        hostname: extraModules:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inputs; };
+          modules = [
+            { nixpkgs.hostPlatform = system; }
+            ./hosts/common.nix
+            ./hosts/${hostname}/configuration.nix
+            ./hosts/${hostname}/hardware-configuration.nix
+            ./modules/system/audio.nix
+            ./modules/system/desktop.nix
+            ./modules/system/docker.nix
+            ./modules/system/keyboard.nix
+            ./modules/system/fingerprint.nix
+            ./modules/system/tailscale.nix
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.extraSpecialArgs = { inherit inputs pkgs-stable; };
+              home-manager.useGlobalPkgs = true;
+              home-manager.users.hutch.imports = [ ./hosts/${hostname}/home.nix ];
+            }
+          ]
+          ++ extraModules;
+        };
     in
     {
       nixosConfigurations = {
-        zephyr  = mkHost "zephyr" [
+        zephyr = mkHost "zephyr" [
           inputs.nixos-hardware.nixosModules.framework-13-7040-amd
         ];
-        olympus = mkHost "olympus" [];
+        olympus = mkHost "olympus" [ ];
       };
     };
 }

@@ -1,5 +1,5 @@
 # Terminal and CLI tools
-{ pkgs, inputs, ... }:
+{ pkgs, ... }:
 {
   imports = [
     ./terminal/fish.nix
@@ -19,9 +19,9 @@
     fzf
     just
     jq
-    inputs.thrum.packages.${pkgs.stdenv.hostPlatform.system}.default
     kubectl
-    flux
+    kubernetes-helm
+    fluxcd
     hugo
   ];
 }
