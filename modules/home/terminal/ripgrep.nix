@@ -1,5 +1,5 @@
 let
-  ripgrepConfigPath = ../configs/ripgrep/.ripgreprc;
+  ripgrepConfigPath = ../../../configs/ripgrep/.ripgreprc;
 in
 {
   programs.ripgrep = {

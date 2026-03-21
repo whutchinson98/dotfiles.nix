@@ -1,11 +1,21 @@
+# Desktop and GUI applications
 {
   config,
   pkgs,
   pkgs-stable,
   ...
 }:
-
 {
+  imports = [
+    ./desktop/alacritty.nix
+    ./desktop/dunst.nix
+    ./desktop/file-manager.nix
+    ./desktop/fonts.nix
+    ./desktop/niri.nix
+    ./desktop/quickshell.nix
+    #./desktop/waybar.nix
+  ];
+
   home.packages = with pkgs; [
     notify
     hyprshot
@@ -21,14 +31,7 @@
     brave
     ledger-live-desktop
     dbeaver-bin
-  ];
-
-  imports = [
-    ../programs/fonts.nix
-    ../programs/niri.nix
-    ../programs/waybar.nix
-    ../programs/file_manager.nix
-    ../programs/alacritty.nix
-    ../programs/dunst.nix
+    proton-vpn-cli
+    brightnessctl
   ];
 }

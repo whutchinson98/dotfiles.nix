@@ -47,7 +47,7 @@ in
       set -gx DOCKER_GATEWAY_HOST 172.17.0.1
       # set -gx NVIM (which nvim)
       set -gx RIPGREP_CONFIG_PATH $HOME/.ripgreprc
-      set -gx EDITOR "nvim"
+      set -gx EDITOR "hx"
 
       set -gx SSH_AUTH_SOCK $HOME/.1password/agent.sock
 
@@ -67,7 +67,7 @@ in
       test -d $DOTNET_ROOT; and fish_add_path $DOTNET_ROOT
 
       # Key bindings
-      bind \cf 'fish -c "~/scripts/tmux-sessionizer"'
+      bind \cf 'commandline -r "~/scripts/zellij-sessionizer; clear"; commandline -f execute'
 
       # Initialize tools
       starship init fish | source

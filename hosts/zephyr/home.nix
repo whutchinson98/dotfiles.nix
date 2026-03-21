@@ -1,17 +1,15 @@
 {
-  inputs,
+  config,
   pkgs,
+  pkgs-stable,
+  inputs,
   ...
 }:
 {
   imports = [
-    ../../modules/terminal.nix
-    ../../modules/dev-tools.nix
-    ../../modules/desktop.nix
-  ];
-
-  home.packages = [
-    inputs.playwright-web-flake.packages.${pkgs.stdenv.hostPlatform.system}.playwright-driver
+    ../../modules/home/terminal.nix
+    ../../modules/home/dev.nix
+    ../../modules/home/desktop.nix
   ];
 
   home.stateVersion = "25.05";
@@ -25,13 +23,6 @@
       extraOptions = {
         IdentityAgent = "~/.1password/agent.sock";
       };
-    };
-  };
-
-  dconf.settings = {
-    "org/gnome/desktop/interface" = {
-      color-scheme = "prefer-dark";
-      enable-hot-corners = false;
     };
   };
 

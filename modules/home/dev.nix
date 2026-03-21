@@ -1,11 +1,12 @@
-{ config, pkgs, ... }:
-
+# Development tools
+{ pkgs, ... }:
 {
   imports = [
-    ../programs/pulumi.nix
-    ../programs/direnv.nix
-    ../programs/claude_code.nix
+    ./dev/claude-code.nix
+    ./dev/direnv.nix
+    ./dev/pulumi.nix
   ];
+
   home.packages = with pkgs; [
     nixd
     nixfmt
@@ -15,5 +16,8 @@
     cargo-lambda
     atac
     sops
+    age
+    ssh-to-age
+    gh
   ];
 }

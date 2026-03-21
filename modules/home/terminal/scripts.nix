@@ -1,5 +1,5 @@
 let
-  scriptsConfigPath = ../configs/scripts;
+  scriptsConfigPath = ../../../configs/scripts;
 in
 {
   home.file."scripts" = {
