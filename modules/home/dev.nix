@@ -19,5 +19,7 @@
     age
     ssh-to-age
     gh
+    gh-dash
+    diffnav
   ];
 }
