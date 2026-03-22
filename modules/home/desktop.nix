@@ -3,18 +3,27 @@
   config,
   pkgs,
   pkgs-stable,
+  inputs,
   ...
 }:
 {
   imports = [
+    inputs.zen-browser.homeModules.beta
     ./desktop/alacritty.nix
     ./desktop/dunst.nix
     ./desktop/file-manager.nix
     ./desktop/fonts.nix
     ./desktop/niri.nix
     ./desktop/quickshell.nix
-    #./desktop/waybar.nix
   ];
+
+  programs.zen-browser = {
+    enable = true;
+    profiles.default = {
+      isDefault = true;
+      path = "default";
+    };
+  };
 
   home.packages = with pkgs; [
     notify
