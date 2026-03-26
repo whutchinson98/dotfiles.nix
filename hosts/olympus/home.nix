@@ -1,18 +1,11 @@
 {
-  inputs,
-  pkgs,
-  ...
-}:
-{
   imports = [
     ../../modules/home/terminal.nix
     ../../modules/home/dev.nix
     ../../modules/home/desktop.nix
   ];
 
-  home.packages = [
-    inputs.playwright-web-flake.packages.${pkgs.stdenv.hostPlatform.system}.playwright-driver
-  ];
+  home.packages = [ ];
 
   home.stateVersion = "25.05";
 

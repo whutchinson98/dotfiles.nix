@@ -13,7 +13,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     niri.url = "github:sodiboo/niri-flake";
-    playwright-web-flake.url = "github:pietdevries94/playwright-web-flake";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
