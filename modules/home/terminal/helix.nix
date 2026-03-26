@@ -47,6 +47,9 @@
       };
     };
     languages = {
+      language-server.gopls = {
+        command = "gopls";
+      };
       language-server.rust-analyzer = {
         config = {
           check = {
@@ -59,6 +62,18 @@
         };
       };
       language = [
+        {
+          name = "go";
+          auto-format = true;
+          formatter = {
+            command = "goimports";
+          };
+          language-servers = [ "gopls" ];
+          indent = {
+            tab-width = 4;
+            unit = "\t";
+          };
+        }
         {
           name = "nix";
           auto-format = true;
