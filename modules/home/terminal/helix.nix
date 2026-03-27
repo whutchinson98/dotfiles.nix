@@ -47,6 +47,10 @@
       };
     };
     languages = {
+      language-server.terraform-ls = {
+        command = "terraform-ls";
+        args = [ "serve" ];
+      };
       language-server.gopls = {
         command = "gopls";
       };
@@ -122,6 +126,11 @@
               "-"
             ];
           };
+        }
+        {
+          name = "terraform";
+          auto-format = true;
+          language-servers = [ "terraform-ls" ];
         }
         {
           name = "typescript";

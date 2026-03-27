@@ -5,6 +5,9 @@
     ./dev/claude-code.nix
     ./dev/direnv.nix
     ./dev/pulumi.nix
+    ./dev/terraform.nix
+    ./dev/aws.nix
+    ./dev/github.nix
   ];
 
   home.packages = with pkgs; [
@@ -13,13 +16,8 @@
     awscli2
     doppler
     docker-compose
-    cargo-lambda
-    atac
     sops
     age
     ssh-to-age
-    gh
-    gh-dash
-    diffnav
   ];
 }
