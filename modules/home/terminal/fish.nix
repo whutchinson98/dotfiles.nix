@@ -81,4 +81,8 @@
 
     interactiveShellInit = "";
   };
+
+  xdg.configFile."fish/completions/aws.fish".text = ''
+    complete --command aws --no-files --arguments '(begin; set --local --export COMP_SHELL fish; set --local --export COMP_LINE (commandline); aws_completer; end)'
+  '';
 }
