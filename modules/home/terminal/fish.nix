@@ -63,7 +63,7 @@
       test -d $DOTNET_ROOT; and fish_add_path $DOTNET_ROOT
 
       # Key bindings
-      bind \cf 'commandline -r "~/scripts/zellij-sessionizer; clear"; commandline -f execute'
+      bind \cf 'fish -c "~/scripts/tmux-sessionizer"'
 
       # Initialize tools
       starship init fish | source
