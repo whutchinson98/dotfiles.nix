@@ -68,6 +68,8 @@
       language = [
         {
           name = "go";
+          scope = "source.go";
+          file-types = [ "go" ];
           auto-format = true;
           formatter = {
             command = "goimports";
@@ -80,6 +82,8 @@
         }
         {
           name = "nix";
+          scope = "source.nix";
+          file-types = [ "nix" ];
           auto-format = true;
           formatter = {
             command = "${pkgs.nixfmt}/bin/nixfmt";
@@ -87,6 +91,8 @@
         }
         {
           name = "rust";
+          scope = "source.rust";
+          file-types = [ "rs" ];
           auto-format = true;
           formatter = {
             command = "rustfmt";
@@ -102,10 +108,14 @@
         }
         {
           name = "json";
+          scope = "source.json";
+          file-types = [ "json" ];
           auto-format = true;
         }
         {
           name = "just";
+          scope = "source.just";
+          file-types = [ "just" ];
           auto-format = true;
           formatter = {
             command = "just";
@@ -118,6 +128,8 @@
         }
         {
           name = "toml";
+          scope = "source.toml";
+          file-types = [ "toml" ];
           auto-format = true;
           formatter = {
             command = "taplo";
@@ -129,11 +141,14 @@
         }
         {
           name = "terraform";
+          scope = "source.terraform";
+          file-types = [ "tf" "tfvars" ];
           auto-format = true;
           language-servers = [ "terraform-ls" ];
         }
         {
           name = "typescript";
+          scope = "source.tsx";
           roots = [
             "package.json"
           ];
