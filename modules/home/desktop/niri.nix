@@ -12,7 +12,7 @@
     swaylock
     fuzzel
     xwayland-satellite
-    swww
+    awww
   ];
 
   programs.niri = {
@@ -62,7 +62,7 @@
           command = [
             "sh"
             "-c"
-            "swww-daemon && swww img $HOME/backgrounds/gruvbox_astro.jpg"
+            "awww-daemon && awww img $HOME/backgrounds/gruvbox_astro.jpg"
           ];
         }
         { command = [ "waybar" ]; }
