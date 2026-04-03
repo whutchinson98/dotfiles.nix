@@ -177,6 +177,7 @@
         "Mod+Shift+8".action.move-column-to-workspace = "music";
         "Mod+Shift+9".action.move-column-to-workspace = "password";
 
+        "Mod+C".action.center-column = { };
         "Mod+F".action.maximize-column = { };
         "Mod+Shift+F".action.fullscreen-window = { };
         "Mod+B".action.screenshot = { };
