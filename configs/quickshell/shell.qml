@@ -446,6 +446,25 @@ ShellRoot {
                         return root.batteryPercent + "% " + icon
                     }
                 }
+
+                Rectangle { width: 1; height: 14; color: root.colBg4 }
+
+                // Power button
+                Text {
+                    color: root.colRed
+                    font { family: root.fontFamily; pixelSize: root.fontSize }
+                    text: "\uf011"
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: poweroffProc.running = true
+                    }
+                }
+
+                Process {
+                    id: poweroffProc
+                    command: ["systemctl", "poweroff"]
+                }
             }
         }
     }
