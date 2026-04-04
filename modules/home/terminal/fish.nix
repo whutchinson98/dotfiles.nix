@@ -31,7 +31,7 @@
     loginShellInit = ''
       # Auto-launch Niri on TTY1
       if test (tty) = "/dev/tty1"; and not set -q WAYLAND_DISPLAY
-        niri-session
+        niri
       end
     '';
 
