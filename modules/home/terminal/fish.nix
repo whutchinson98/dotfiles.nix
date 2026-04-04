@@ -28,12 +28,14 @@
       ct = "cargo test";
     };
 
-    shellInit = ''
+    loginShellInit = ''
       # Auto-launch Niri on TTY1
       if test (tty) = "/dev/tty1"; and not set -q WAYLAND_DISPLAY
-        exec niri-session
+        niri-session
       end
+    '';
 
+    shellInit = ''
       # Disable fish greeting
       set -U fish_greeting ""
 

@@ -7,7 +7,6 @@ in
   options.dotfiles.desktop.enable = lib.mkEnableOption "Niri desktop environment";
 
   config = lib.mkIf cfg.enable {
-    services.getty.autologinUser = "hutch";
     programs.niri.enable = true;
     security.polkit.enable = true;
   };
