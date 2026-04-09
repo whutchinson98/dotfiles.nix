@@ -2,7 +2,7 @@
 { pkgs, ... }:
 {
   imports = [
-    ./dev/claude-code.nix
+    ./dev/ai.nix
     ./dev/direnv.nix
     ./dev/pulumi.nix
     ./dev/terraform.nix
