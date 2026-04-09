@@ -65,7 +65,6 @@
             "awww-daemon && awww img $HOME/backgrounds/gruvbox_astro.jpg"
           ];
         }
-        { command = [ "quickshell" ]; }
         { command = [ "waybar" ]; }
         { command = [ "xwayland-satellite" ]; }
         { command = [ "brave" ]; }
