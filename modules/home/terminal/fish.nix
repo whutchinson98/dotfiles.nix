@@ -31,7 +31,12 @@
     loginShellInit = ''
       # Auto-launch Niri on TTY1
       if test (tty) = "/dev/tty1"; and not set -q WAYLAND_DISPLAY
-        niri
+        systemctl --user reset-failed
+        systemctl --user import-environment
+        dbus-update-activation-environment --all
+        systemctl --user --wait start niri.service
+        systemctl --user start --job-mode=replace-irreversibly niri-shutdown.target
+        systemctl --user unset-environment WAYLAND_DISPLAY DISPLAY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP NIRI_SOCKET
       end
     '';
 
