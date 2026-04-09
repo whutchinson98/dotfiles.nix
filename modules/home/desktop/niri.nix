@@ -68,7 +68,7 @@
         { command = [ "quickshell" ]; }
         { command = [ "waybar" ]; }
         { command = [ "xwayland-satellite" ]; }
-        { command = [ "zen-beta" ]; }
+        { command = [ "brave" ]; }
         { command = [ "alacritty" ]; }
         { command = [ "lxqt-policykit-agent" ]; }
         { command = [ "1password" ]; }
@@ -101,7 +101,7 @@
           open-on-workspace = "browser";
         }
         {
-          matches = [ { app-id = "brave-browser"; } ];
+          matches = [ { app-id = "Brave-browser"; } ];
           open-on-workspace = "browser";
         }
         {
