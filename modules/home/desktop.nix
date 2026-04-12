@@ -2,12 +2,12 @@
 {
   pkgs,
   pkgs-stable,
-  # inputs,
+  inputs,
   ...
 }:
 {
   imports = [
-    # inputs.zen-browser.homeModules.beta
+    inputs.zen-browser.homeModules.beta
     ./desktop/alacritty.nix
     ./desktop/dunst.nix
     ./desktop/file-manager.nix
@@ -16,13 +16,13 @@
     ./desktop/quickshell.nix
   ];
 
-  # programs.zen-browser = {
-  #   enable = true;
-  #   profiles.default = {
-  #     isDefault = true;
-  #     path = "default";
-  #   };
-  # };
+  programs.zen-browser = {
+    enable = true;
+    profiles.default = {
+      isDefault = true;
+      path = "default";
+    };
+  };
 
   home.packages = with pkgs; [
     notify
