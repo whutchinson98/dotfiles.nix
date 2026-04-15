@@ -28,6 +28,10 @@
       ct = "cargo test";
     };
 
+    shellAliases = {
+      jjw = "jj_workspace_add";
+    };
+
     loginShellInit = ''
       # Auto-launch Niri on TTY1
       if test (tty) = "/dev/tty1"; and not set -q WAYLAND_DISPLAY
@@ -88,6 +92,15 @@
       # Nix setup
       if test -e $HOME/.nix-profile/etc/profile.d/nix.fish
         source $HOME/.nix-profile/etc/profile.d/nix.fish
+      end
+
+      function jj_workspace_add --argument workspace_name
+        if test -z "$workspace_name"
+          echo "Usage jj_workspace_add <workspace_name"
+          return 1
+        end
+        set folder (basename (pwd))
+        jj workspace add "../$folder-$workspace_name"
       end
     '';
 
