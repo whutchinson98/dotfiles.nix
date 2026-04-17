@@ -132,10 +132,6 @@
           open-on-workspace = "music";
           open-focused = true;
         }
-        {
-          matches = [ { app-id = "1password"; } ];
-          open-floating = true;
-        }
       ];
 
       binds = {
