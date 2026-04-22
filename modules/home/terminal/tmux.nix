@@ -23,8 +23,8 @@
       unbind C-b
       bind-key C-a send-prefix
 
-      bind | split-window -h
-      bind - split-window -v
+      bind | split-window -h -c "#{pane_current_path}"
+      bind - split-window -v -c "#{pane_current_path}"
       unbind '"'
       unbind %
 
