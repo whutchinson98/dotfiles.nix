@@ -79,6 +79,17 @@
 
       screenshot-path = "~/screenshots/%Y-%m-%d %H-%M-%S.png";
 
+      switch-events = {
+        lid-close.action.spawn = [
+          "sh" "-c"
+          "niri msg output eDP-1 off"
+        ];
+        lid-open.action.spawn = [
+          "sh" "-c"
+          "niri msg output eDP-1 on"
+        ];
+      };
+
       workspaces = {
         "browser" = { };
         "code" = { };
@@ -172,6 +183,11 @@
         "Mod+Shift+7".action.move-column-to-workspace = "chat";
         "Mod+Shift+8".action.move-column-to-workspace = "music";
         "Mod+Shift+9".action.move-column-to-workspace = "password";
+
+        "Mod+Shift+Ctrl+Left".action.move-column-to-monitor-left = { };
+        "Mod+Shift+Ctrl+Right".action.move-column-to-monitor-right = { };
+        "Mod+Ctrl+Left".action.focus-monitor-left = { };
+        "Mod+Ctrl+Right".action.focus-monitor-right = { };
 
         "Mod+C".action.center-column = { };
         "Mod+F".action.maximize-column = { };
