@@ -6,7 +6,10 @@ import QtQuick.Layouts
 
 ShellRoot {
     Variants {
-        model: Quickshell.screens
+        model: {
+            var external = Quickshell.screens.filter(s => s.model?.includes("VG27AQ1A"));
+            return external.length > 0 ? external : [Quickshell.screens[0]];
+        }
 
     PanelWindow {
         id: root
