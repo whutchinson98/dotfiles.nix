@@ -48,6 +48,7 @@
             ./modules/system/keyboard.nix
             ./modules/system/fingerprint.nix
             ./modules/system/tailscale.nix
+            ./modules/system/power.nix
             home-manager.nixosModules.home-manager
             {
               home-manager.extraSpecialArgs = { inherit inputs pkgs-stable; };

@@ -10,4 +10,5 @@
   dotfiles.docker.enable = true;
   dotfiles.audio.enable = true;
   dotfiles.desktop.enable = true;
+  dotfiles.power.enable = true;
 }
