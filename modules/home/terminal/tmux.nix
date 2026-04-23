@@ -35,6 +35,8 @@
 
       bind r source-file ~/.tmux.conf
 
+      bind q kill-session
+
       bind-key -r -T prefix Up resize-pane -U
       bind-key -r -T prefix Down resize-pane -D
       bind-key -r -T prefix Left resize-pane -L
