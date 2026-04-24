@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -12,6 +13,8 @@ in
     opencode
     pi-coding-agent
     claude-code
+  ] ++ lib.optionals pkgs.stdenv.isLinux [
+    libnotify
   ];
 
   home.file.".pi/agent/APPEND_SYSTEM.md" = {
