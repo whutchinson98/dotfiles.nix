@@ -10,6 +10,7 @@ let
 in
 {
   home.packages = with pkgs; [
+    fd
     opencode
     pi-coding-agent
     claude-code
