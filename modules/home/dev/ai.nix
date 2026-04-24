@@ -18,6 +18,11 @@ in
     source = piAgentPath + /APPEND_SYSTEM.md;
   };
 
+  home.file.".pi/agent/skills" = {
+    source = piAgentPath + /skills;
+    recursive = true;
+  };
+
   home.file.".pi/agent/extensions" = {
     source = piExtensionsPath;
     recursive = true;
