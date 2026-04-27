@@ -2,7 +2,7 @@
 
 Configuration and extension sources for [pi](https://github.com/badlogic/pi-mono).
 
-Pi reads agent-level prompt additions from `~/.pi/agent/APPEND_SYSTEM.md`, auto-discovers global skills from `~/.pi/agent/skills`, and auto-discovers global extensions from `~/.pi/agent/extensions`. The home-manager module at `modules/home/dev/ai.nix` links `configs/pi/agent/APPEND_SYSTEM.md`, `configs/pi/agent/skills`, and `configs/pi/extensions` there, the same way the Neovim module links `configs/nvim` into `~/.config/nvim`.
+Pi reads agent-level prompt additions from `~/.pi/agent/APPEND_SYSTEM.md`, keybinding overrides from `~/.pi/agent/keybindings.json`, auto-discovers global skills from `~/.pi/agent/skills`, and auto-discovers global extensions from `~/.pi/agent/extensions`. The home-manager module at `modules/home/dev/ai.nix` links `configs/pi/agent/APPEND_SYSTEM.md`, `configs/pi/agent/keybindings.json`, `configs/pi/agent/skills`, and `configs/pi/extensions` there, the same way the Neovim module links `configs/nvim` into `~/.config/nvim`.
 
 Add skills as directories containing `SKILL.md` under `agent/skills/`.
 
