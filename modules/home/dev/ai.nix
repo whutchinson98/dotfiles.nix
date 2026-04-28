@@ -7,18 +7,31 @@
 let
   piAgentPath = ../../../configs/pi/agent;
   piExtensionsPath = ../../../configs/pi/extensions;
+
+  # Nix-friendly wrapper for the npm MCP proxy used by the Linear pi extension.
+  # It avoids relying on npx being present on NixOS. bunx downloads/caches the JS
+  # package in the user's home directory; nodejs is on PATH for CLIs with a node shebang.
+  mcpRemote = pkgs.writeShellApplication {
+    name = "mcp-remote";
+    runtimeInputs = with pkgs; [
+      bun
+      nodejs
+    ];
+    text = ''
+      exec bunx mcp-remote "$@"
+    '';
+  };
 in
 {
   home.packages =
-    with pkgs;
-    [
+    (with pkgs; [
       fd
       opencode
       pi-coding-agent
-    ]
-    ++ lib.optionals pkgs.stdenv.isLinux [
-      libnotify
-    ];
+    ])
+    ++ [ mcpRemote ];
+
+  # note: libnotify is part of desktop.nix do not add here
 
   home.file.".pi/agent/APPEND_SYSTEM.md" = {
     source = piAgentPath + /APPEND_SYSTEM.md;
