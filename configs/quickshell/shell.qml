@@ -15,22 +15,22 @@ ShellRoot {
         id: root
         screen: modelData
 
-        // Gruvbox Dark palette
-        readonly property color colBg:      "#282828"
-        readonly property color colBgHard:  "#1d2021"
-        readonly property color colBg1:     "#3c3836"
-        readonly property color colBg2:     "#504945"
-        readonly property color colBg4:     "#7c6f64"
-        readonly property color colFg:      "#ebdbb2"
-        readonly property color colFg2:     "#d5c4a1"
-        readonly property color colFg4:     "#a89984"
-        readonly property color colRed:     "#fb4934"
-        readonly property color colGreen:   "#b8bb26"
-        readonly property color colYellow:  "#fabd2f"
-        readonly property color colBlue:    "#83a598"
-        readonly property color colPurple:  "#d3869b"
-        readonly property color colAqua:    "#8ec07c"
-        readonly property color colOrange:  "#fe8019"
+        // Everforest Dark (Medium) palette
+        readonly property color colBg:      "#2d353b"
+        readonly property color colBgHard:  "#232a2e"
+        readonly property color colBg1:     "#343f44"
+        readonly property color colBg2:     "#3d484d"
+        readonly property color colBg4:     "#56635f"
+        readonly property color colFg:      "#d3c6aa"
+        readonly property color colFg2:     "#d3c6aa"
+        readonly property color colFg4:     "#9da9a0"
+        readonly property color colRed:     "#e67e80"
+        readonly property color colGreen:   "#a7c080"
+        readonly property color colYellow:  "#dbbc7f"
+        readonly property color colBlue:    "#7fbbb3"
+        readonly property color colPurple:  "#d699b6"
+        readonly property color colAqua:    "#83c092"
+        readonly property color colOrange:  "#e69875"
 
         readonly property string fontFamily: "SpaceMono Nerd Font"
         readonly property int fontSize: 14
@@ -264,7 +264,7 @@ ShellRoot {
             anchors.left: parent.left
             anchors.leftMargin: 8
             anchors.verticalCenter: parent.verticalCenter
-            color: Qt.rgba(0.114, 0.125, 0.129, 0.85)
+            color: Qt.rgba(0.137, 0.165, 0.180, 0.85)
             radius: 10
             border.width: 1
             border.color: root.colBg2
@@ -316,7 +316,7 @@ ShellRoot {
         Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-            color: Qt.rgba(0.114, 0.125, 0.129, 0.85)
+            color: Qt.rgba(0.137, 0.165, 0.180, 0.85)
             radius: 10
             border.width: 1
             border.color: root.colBg2
@@ -347,7 +347,7 @@ ShellRoot {
             anchors.right: parent.right
             anchors.rightMargin: 8
             anchors.verticalCenter: parent.verticalCenter
-            color: Qt.rgba(0.114, 0.125, 0.129, 0.85)
+            color: Qt.rgba(0.137, 0.165, 0.180, 0.85)
             radius: 10
             border.width: 1
             border.color: root.colBg2

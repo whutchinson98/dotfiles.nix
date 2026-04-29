@@ -3,7 +3,7 @@
   programs.helix = {
     enable = true;
     settings = {
-      theme = "gruvbox";
+      theme = "everforest_dark";
       editor = {
         bufferline = "multiple";
         file-picker = {
@@ -142,7 +142,10 @@
         {
           name = "terraform";
           scope = "source.terraform";
-          file-types = [ "tf" "tfvars" ];
+          file-types = [
+            "tf"
+            "tfvars"
+          ];
           auto-format = true;
           language-servers = [ "terraform-ls" ];
         }
