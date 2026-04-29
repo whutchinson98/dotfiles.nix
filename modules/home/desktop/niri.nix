@@ -62,7 +62,7 @@
           command = [
             "sh"
             "-c"
-            "awww-daemon && awww img $HOME/backgrounds/gruvbox_astro.jpg"
+            "awww-daemon && awww img $HOME/backgrounds/everforest.png"
           ];
         }
         { command = [ "waybar" ]; }
@@ -81,11 +81,13 @@
 
       switch-events = {
         lid-close.action.spawn = [
-          "sh" "-c"
+          "sh"
+          "-c"
           "niri msg output eDP-1 off"
         ];
         lid-open.action.spawn = [
-          "sh" "-c"
+          "sh"
+          "-c"
           "niri msg output eDP-1 on"
         ];
       };
