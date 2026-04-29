@@ -8,7 +8,7 @@ let
   piAgentPath = ../../../configs/pi/agent;
   piExtensionsPath = ../../../configs/pi/extensions;
 
-  # Nix-friendly wrapper for the npm MCP proxy used by the Linear pi extension.
+  # Nix-friendly wrapper for the npm MCP proxy used by remote MCP pi extensions.
   # It avoids relying on npx being present on NixOS. bunx downloads/caches the JS
   # package in the user's home directory; nodejs is on PATH for CLIs with a node shebang.
   mcpRemote = pkgs.writeShellApplication {
