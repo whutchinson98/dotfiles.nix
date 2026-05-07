@@ -72,6 +72,7 @@ ShellRoot {
         property int brightness: 0
         property int batteryPercent: 0
         property string batteryStatus: ""
+        property bool hasBattery: false
         property bool vpnConnected: false
         property string vpnServer: ""
 
@@ -188,23 +189,17 @@ ShellRoot {
         // Battery
         Process {
             id: batProc
-            command: ["sh", "-c", "cat /sys/class/power_supply/BAT1/capacity 2>/dev/null || echo 0"]
+            command: ["sh", "-c", "for b in /sys/class/power_supply/BAT*; do [ -d \"$b\" ] || continue; [ \"$(cat \"$b/type\" 2>/dev/null)\" = \"Battery\" ] || continue; [ -r \"$b/capacity\" ] || continue; cap=$(cat \"$b/capacity\"); status=$(cat \"$b/status\" 2>/dev/null || echo Unknown); echo \"1:$cap:$status\"; exit; done; echo \"0:0:Unknown\""]
             stdout: SplitParser {
                 onRead: data => {
-                    if (!data) return
-                    root.batteryPercent = parseInt(data.trim()) || 0
-                }
-            }
-            Component.onCompleted: running = true
-        }
-
-        Process {
-            id: batStatusProc
-            command: ["sh", "-c", "cat /sys/class/power_supply/BAT1/status 2>/dev/null || echo Unknown"]
-            stdout: SplitParser {
-                onRead: data => {
-                    if (!data) return
-                    root.batteryStatus = data.trim()
+                    if (!data) {
+                        root.hasBattery = false
+                        return
+                    }
+                    var parts = data.trim().split(":")
+                    root.hasBattery = parts[0] === "1"
+                    root.batteryPercent = root.hasBattery ? (parseInt(parts[1]) || 0) : 0
+                    root.batteryStatus = root.hasBattery ? (parts.slice(2).join(":") || "Unknown") : ""
                 }
             }
             Component.onCompleted: running = true
@@ -254,7 +249,6 @@ ShellRoot {
                 volProc.running = true
                 brightProc.running = true
                 batProc.running = true
-                batStatusProc.running = true
                 vpnProc.running = true
             }
         }
@@ -426,10 +420,11 @@ ShellRoot {
                     text: root.brightness + "% " + root.iconSun
                 }
 
-                Rectangle { width: 1; height: 14; color: root.colBg4 }
+                Rectangle { width: 1; height: 14; color: root.colBg4; visible: root.hasBattery }
 
                 // Battery
                 Text {
+                    visible: root.hasBattery
                     color: {
                         if (root.batteryStatus === "Charging") return root.colGreen
                         if (root.batteryPercent <= 15) return root.colRed
