@@ -29,6 +29,18 @@ Subagent subprocesses use `--no-extensions` by default; pass `includeExtensions:
 
 It also registers `/agents [user|project|both]` for interactive discovery.
 
+## Planner-builder workflow
+
+`planner-builder/` registers:
+
+| Tool | Purpose |
+| --- | --- |
+| `plan_file_create` | Run the `planner` agent and save a structured plan file under `.pi/plans`. |
+| `plan_file_build` | Run `builder` agents for ready tasks in a plan file, in dependency-aware parallel waves. |
+| `plan_file_list` | List recent plan files. |
+
+It also registers `/plan-create`, `/plan-build`, and `/plan-list`.
+
 ## Remote MCP extensions
 
 `linear_mcp.ts` and `pulumi_mcp.ts` use the reusable helper in `mcp_bridge/bridge.ts` to start remote MCP servers. On Linux it uses the Nix/Home Manager `mcp-remote` command; on macOS and other platforms it uses `npx -y mcp-remote`.

@@ -15,4 +15,6 @@ Add extensions as either:
 
 The `agent/extensions/subagent` extension registers `agent_list` and `subagent` tools so pi can list and spawn the agents in `agent/agents/`.
 
+The `agent/extensions/planner-builder` extension registers `plan_file_create`, `plan_file_build`, and `plan_file_list` tools plus `/plan-create`, `/plan-build`, and `/plan-list` commands. It uses the `planner` agent to write `.pi/plans/*.md` plan files, then runs `builder` agents against ready task blocks in dependency-aware parallel waves.
+
 After rebuilding home-manager/NixOS, run `/reload` inside pi to pick up changes.

@@ -1,0 +1,1103 @@
+import { spawn } from "node:child_process";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
+import type { Message } from "@mariozechner/pi-ai";
+import { StringEnum, Type } from "@mariozechner/pi-ai";
+import {
+  formatSize,
+  truncateHead,
+  type ExtensionAPI,
+  type ExtensionContext,
+  withFileMutationQueue,
+} from "@mariozechner/pi-coding-agent";
+import {
+  type AgentConfig,
+  type AgentDiscoveryResult,
+  type AgentScope,
+  discoverAgents,
+  formatAgentList,
+} from "../subagent/agents";
+
+const DEFAULT_PLANNER_AGENT = "planner";
+const DEFAULT_BUILDER_AGENT = "builder";
+const DEFAULT_PLAN_DIR = ".pi/plans";
+const MAX_CONCURRENCY = 4;
+const STDERR_TAIL_LIMIT = 20_000;
+
+type TextContent = { type: "text"; text: string };
+type TaskStatus = "pending" | "in-progress" | "done" | "failed" | "blocked";
+
+interface UsageStats {
+  input: number;
+  output: number;
+  cacheRead: number;
+  cacheWrite: number;
+  cost: number;
+  contextTokens: number;
+  turns: number;
+}
+
+interface AgentRunResult {
+  agent: string;
+  agentSource: "user" | "project" | "unknown";
+  task: string;
+  cwd: string;
+  exitCode: number;
+  finalOutput: string;
+  stderr: string;
+  usage: UsageStats;
+  model?: string;
+  stopReason?: string;
+  errorMessage?: string;
+}
+
+interface PlanTask {
+  id: string;
+  title: string;
+  status: string;
+  dependsOn: string[];
+  block: string;
+  start: number;
+  end: number;
+}
+
+interface PlanCreateDetails {
+  path: string;
+  plannerAgent: string;
+  builderAgent: string;
+  taskCount: number;
+  warnings: string[];
+}
+
+interface PlanBuildResult {
+  task: PlanTask;
+  run: AgentRunResult;
+  status: TaskStatus;
+  marker?: string;
+}
+
+interface PlanBuildDetails {
+  path: string;
+  builderAgent: string;
+  maxConcurrency: number;
+  results: Array<{
+    id: string;
+    title: string;
+    status: TaskStatus;
+    exitCode: number;
+    output: string;
+  }>;
+  skipped: Array<{
+    id: string;
+    title: string;
+    reason: string;
+  }>;
+}
+
+type ToolUpdate<TDetails> = { content: TextContent[]; details: TDetails };
+type OnUpdateCallback<TDetails> = (partial: ToolUpdate<TDetails>) => void;
+
+const AgentScopeSchema = StringEnum(["user", "project", "both"] as const, {
+  description:
+    'Which agent directories to use. Default: "user" loads ~/.pi/agent/agents. Use "project" or "both" only for trusted repos.',
+  default: "user",
+});
+
+const PlanCreateParams = Type.Object({
+  request: Type.String({ description: "Implementation request for the planner agent." }),
+  path: Type.Optional(
+    Type.String({
+      description:
+        'Plan file path to write. Relative paths resolve from pi cwd. Default: ".pi/plans/<timestamp>-<slug>.md".',
+    }),
+  ),
+  plannerAgent: Type.Optional(Type.String({ description: 'Planner agent name. Default: "planner".' })),
+  builderAgent: Type.Optional(
+    Type.String({
+      description:
+        'Builder agent name recorded in the plan and used in generated task instructions. Default: "builder".',
+    }),
+  ),
+  agentScope: Type.Optional(AgentScopeSchema),
+  overwrite: Type.Optional(Type.Boolean({ description: "Overwrite an existing plan file. Default: false.", default: false })),
+  confirmProjectAgents: Type.Optional(
+    Type.Boolean({ description: "Prompt before running project-local agents. Default: true.", default: true }),
+  ),
+});
+
+const PlanBuildParams = Type.Object({
+  path: Type.String({ description: "Plan file path to read. Relative paths resolve from pi cwd." }),
+  taskIds: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Optional task ids to run, e.g. [\"T01\", \"T02\"]. If omitted, all pending/failed/blocked tasks are considered.",
+    }),
+  ),
+  builderAgent: Type.Optional(Type.String({ description: 'Builder agent name. Default: "builder".' })),
+  agentScope: Type.Optional(AgentScopeSchema),
+  maxConcurrency: Type.Optional(
+    Type.Number({
+      description: `Maximum number of builder agents to run in parallel. Default: 2, max: ${MAX_CONCURRENCY}.`,
+      default: 2,
+      minimum: 1,
+      maximum: MAX_CONCURRENCY,
+    }),
+  ),
+  confirmProjectAgents: Type.Optional(
+    Type.Boolean({ description: "Prompt before running project-local agents. Default: true.", default: true }),
+  ),
+});
+
+const PlanListParams = Type.Object({
+  limit: Type.Optional(Type.Number({ description: "Maximum number of plan files to list. Default: 10.", default: 10 })),
+});
+
+function emptyUsage(): UsageStats {
+  return { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, contextTokens: 0, turns: 0 };
+}
+
+function appendStderrTail(current: string, chunk: string): string {
+  const next = current + chunk;
+  if (next.length <= STDERR_TAIL_LIMIT) return next;
+  return next.slice(next.length - STDERR_TAIL_LIMIT);
+}
+
+function truncateText(text: string, maxBytes = 50 * 1024, maxLines = 2_000): string {
+  const truncation = truncateHead(text, { maxBytes, maxLines });
+  if (!truncation.truncated) return truncation.content;
+
+  return `${truncation.content}\n\n[Output truncated: ${truncation.outputLines} of ${truncation.totalLines} lines (${formatSize(
+    truncation.outputBytes,
+  )} of ${formatSize(truncation.totalBytes)}).]`;
+}
+
+function messageText(message: Message): string {
+  const content = Array.isArray(message.content) ? message.content : [];
+  return content
+    .filter((part): part is TextContent => part?.type === "text" && typeof part.text === "string")
+    .map((part) => part.text)
+    .join("\n\n")
+    .trim();
+}
+
+function finalAssistantOutput(messages: Message[]): string {
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index];
+    if (message.role !== "assistant") continue;
+
+    const text = messageText(message);
+    if (text) return text;
+  }
+
+  return "";
+}
+
+function updateUsageFromMessage(result: AgentRunResult, message: Message): void {
+  if (message.role !== "assistant") return;
+
+  result.usage.turns++;
+
+  const usage = message.usage;
+  if (usage) {
+    result.usage.input += usage.input || 0;
+    result.usage.output += usage.output || 0;
+    result.usage.cacheRead += usage.cacheRead || 0;
+    result.usage.cacheWrite += usage.cacheWrite || 0;
+    result.usage.cost += usage.cost?.total || 0;
+    result.usage.contextTokens = usage.totalTokens || 0;
+  }
+
+  if (!result.model && message.model) result.model = message.model;
+  if (message.stopReason) result.stopReason = message.stopReason;
+  if (message.errorMessage) result.errorMessage = message.errorMessage;
+}
+
+function isAgentErrored(result: AgentRunResult): boolean {
+  return result.exitCode !== 0 || result.stopReason === "error" || result.stopReason === "aborted";
+}
+
+function summarizeFailure(result: AgentRunResult): string {
+  return result.errorMessage || result.stderr.trim() || result.finalOutput || `pi exited with code ${result.exitCode}`;
+}
+
+function resolvePath(cwd: string, rawPath: string): string {
+  const normalized = rawPath.trim().replace(/^@/, "");
+  return path.isAbsolute(normalized) ? normalized : path.resolve(cwd, normalized);
+}
+
+function displayPath(cwd: string, absolutePath: string): string {
+  const relative = path.relative(cwd, absolutePath);
+  if (!relative.startsWith("..") && !path.isAbsolute(relative)) return relative || ".";
+  return absolutePath;
+}
+
+function slugify(text: string): string {
+  const slug = text
+    .toLowerCase()
+    .replace(/`[^`]*`/g, " ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48)
+    .replace(/-+$/g, "");
+
+  return slug || "plan";
+}
+
+function timestampForFile(date = new Date()): string {
+  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z").replace("T", "-");
+}
+
+function defaultPlanPath(cwd: string, request: string): string {
+  return path.resolve(cwd, DEFAULT_PLAN_DIR, `${timestampForFile()}-${slugify(request)}.md`);
+}
+
+function yamlString(value: string): string {
+  return JSON.stringify(value);
+}
+
+function planFileHeader(request: string, plannerAgent: string, builderAgent: string): string {
+  return [
+    "---",
+    "planFileVersion: 1",
+    `createdAt: ${yamlString(new Date().toISOString())}`,
+    `request: ${yamlString(request)}`,
+    `plannerAgent: ${yamlString(plannerAgent)}`,
+    `builderAgent: ${yamlString(builderAgent)}`,
+    'status: "pending"',
+    "---",
+    "",
+    `> Generated by \`plan_file_create\` using the \`${plannerAgent}\` agent.`,
+    `> Run ready tasks with \`/plan-build <this-file>\` or ask pi to use \`plan_file_build\`.`,
+    "",
+  ].join("\n");
+}
+
+function createPlannerTask(request: string, builderAgent: string): string {
+  return [
+    "Create a multi-agent implementation plan for this request:",
+    "",
+    request,
+    "",
+    "The output will be saved as a plan file and consumed by an extension that dispatches task blocks to builder agents.",
+    `Assume each task will be implemented by a separate \`${builderAgent}\` agent, potentially in parallel with other independent tasks.`,
+    "",
+    "Requirements:",
+    "- Analyze the actual repository before planning.",
+    "- Do not modify files.",
+    "- Output markdown only; do not wrap the plan in a code fence.",
+    "- Split work into small, builder-sized tasks that can be run independently when possible.",
+    "- Add dependencies when tasks must run after another task.",
+    "- Avoid assigning the same file to multiple parallel tasks unless a dependency prevents simultaneous edits.",
+    "- Include exact file paths, verification commands, and edge cases.",
+    "",
+    "Use this exact machine-readable task format for every builder task:",
+    "",
+    "## Builder Tasks",
+    "",
+    "### Task T01: Short imperative title",
+    "Status: pending",
+    "Depends on: none",
+    "Files:",
+    "- path/to/file.ts",
+    "Instructions:",
+    "- Specific implementation instruction.",
+    "Verification:",
+    "- Exact command or manual check.",
+    "",
+    "### Task T02: Short imperative title",
+    "Status: pending",
+    "Depends on: T01",
+    "Files:",
+    "- path/to/other-file.ts",
+    "Instructions:",
+    "- Specific implementation instruction.",
+    "Verification:",
+    "- Exact command or manual check.",
+    "",
+    "Keep task ids sequential as T01, T02, T03, etc.",
+    "Use Depends on: none for independent tasks, or a comma-separated list like Depends on: T01, T02.",
+  ].join("\n");
+}
+
+function parseTaskIds(raw: string): string[] {
+  return raw
+    .split(/[\s,]+/)
+    .map((id) => id.trim())
+    .filter(Boolean);
+}
+
+function normalizeTaskId(taskId: string): string {
+  return taskId.trim().toUpperCase();
+}
+
+function parseDependsOn(block: string): string[] {
+  const match = block.match(/^Depends on:\s*(.+)$/im);
+  if (!match) return [];
+
+  const value = match[1].trim();
+  if (!value || /^none$/i.test(value)) return [];
+
+  return value
+    .split(/[,\s]+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map(normalizeTaskId);
+}
+
+function parsePlanTasks(content: string): PlanTask[] {
+  const headingPattern = /^###\s+Task\s+([A-Za-z0-9][A-Za-z0-9_-]*)\s*:\s*(.+?)\s*$/gm;
+  const sectionPattern = /^##\s+[^#].*$/gm;
+  const matches = Array.from(content.matchAll(headingPattern));
+  const sectionStarts = Array.from(content.matchAll(sectionPattern)).map((match) => match.index ?? 0);
+
+  return matches.map((match, index) => {
+    const start = match.index ?? 0;
+    const nextTaskStart = matches[index + 1]?.index ?? content.length;
+    const nextSectionStart = sectionStarts.find((sectionStart) => sectionStart > start) ?? content.length;
+    const end = Math.min(nextTaskStart, nextSectionStart);
+    const block = content.slice(start, end).trimEnd();
+    const statusMatch = block.match(/^Status:\s*([A-Za-z][A-Za-z0-9_-]*)\s*$/im);
+
+    return {
+      id: normalizeTaskId(match[1]),
+      title: match[2].trim(),
+      status: statusMatch?.[1]?.trim().toLowerCase() ?? "pending",
+      dependsOn: parseDependsOn(block),
+      block,
+      start,
+      end,
+    };
+  });
+}
+
+function replaceTaskStatus(block: string, status: TaskStatus): string {
+  if (/^Status:\s*.*$/im.test(block)) {
+    return block.replace(/^Status:\s*.*$/im, `Status: ${status}`);
+  }
+
+  const firstLineEnd = block.indexOf("\n");
+  if (firstLineEnd === -1) return `${block}\nStatus: ${status}`;
+
+  return `${block.slice(0, firstLineEnd + 1)}Status: ${status}\n${block.slice(firstLineEnd + 1)}`;
+}
+
+function escapeCodeFence(text: string): string {
+  return text.replace(/```/g, "``\\`");
+}
+
+function builderResultLog(result: PlanBuildResult): string {
+  const output = result.run.finalOutput || (isAgentErrored(result.run) ? summarizeFailure(result.run) : "(no output)");
+  const marker = result.marker ? `\n- Result marker: ${result.marker}` : "";
+
+  return [
+    `#### Builder result ${new Date().toISOString()}`,
+    `- Agent: ${result.run.agent}`,
+    `- Status: ${result.status}`,
+    `- Exit code: ${result.run.exitCode}`,
+    marker,
+    "",
+    "```text",
+    escapeCodeFence(truncateText(output, 12 * 1024, 400)),
+    "```",
+  ].join("\n");
+}
+
+async function updatePlanTaskStatus(
+  absolutePath: string,
+  taskId: string,
+  status: TaskStatus,
+  appendLog?: string,
+): Promise<void> {
+  await withFileMutationQueue(absolutePath, async () => {
+    const content = await fs.promises.readFile(absolutePath, "utf8");
+    const tasks = parsePlanTasks(content);
+    const task = tasks.find((candidate) => candidate.id === normalizeTaskId(taskId));
+    if (!task) throw new Error(`Task ${taskId} was not found in ${absolutePath}.`);
+
+    let block = replaceTaskStatus(task.block, status);
+    if (appendLog) block = `${block.trimEnd()}\n\n${appendLog}`;
+
+    const suffix = content.slice(task.end);
+    const separator = suffix.length > 0 ? (block.endsWith("\n") ? "\n" : "\n\n") : "\n";
+    const nextContent = `${content.slice(0, task.start)}${block}${separator}${suffix}`;
+    await fs.promises.writeFile(absolutePath, nextContent, "utf8");
+  });
+}
+
+function getPiInvocation(args: string[]): { command: string; args: string[] } {
+  const currentScript = process.argv[1];
+  const isBunVirtualScript = currentScript?.startsWith("/$bunfs/root/");
+
+  if (currentScript && !isBunVirtualScript && fs.existsSync(currentScript)) {
+    return { command: process.execPath, args: [currentScript, ...args] };
+  }
+
+  const execName = path.basename(process.execPath).toLowerCase();
+  const isGenericRuntime = /^(node|bun)(\.exe)?$/.test(execName);
+  if (!isGenericRuntime) return { command: process.execPath, args };
+
+  return { command: "pi", args };
+}
+
+async function writePromptToTempFile(agentName: string, prompt: string): Promise<{ dir: string; filePath: string }> {
+  const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "pi-planner-builder-"));
+  const safeName = agentName.replace(/[^A-Za-z0-9_.-]+/g, "_");
+  const filePath = path.join(dir, `prompt-${safeName}.md`);
+
+  await withFileMutationQueue(filePath, async () => {
+    await fs.promises.writeFile(filePath, prompt, { encoding: "utf8", mode: 0o600 });
+  });
+
+  return { dir, filePath };
+}
+
+async function runAgent(
+  defaultCwd: string,
+  agents: AgentConfig[],
+  agentName: string,
+  task: string,
+  signal: AbortSignal | undefined,
+  onOutput?: (result: AgentRunResult) => void,
+): Promise<AgentRunResult> {
+  const agent = agents.find((candidate) => candidate.name === agentName);
+  const result: AgentRunResult = {
+    agent: agentName,
+    agentSource: agent?.source ?? "unknown",
+    task,
+    cwd: defaultCwd,
+    exitCode: 0,
+    finalOutput: "",
+    stderr: "",
+    usage: emptyUsage(),
+    model: agent?.model,
+  };
+
+  if (!agent) {
+    const available = agents.map((candidate) => candidate.name).join(", ") || "none";
+    return {
+      ...result,
+      exitCode: 1,
+      stderr: `Unknown agent "${agentName}". Available agents: ${available}.`,
+    };
+  }
+
+  const args = ["--mode", "json", "-p", "--no-session", "--no-extensions"];
+  if (agent.model) args.push("--model", agent.model);
+  if (agent.tools?.length) args.push("--tools", agent.tools.join(","));
+
+  let promptDir: string | undefined;
+  const messages: Message[] = [];
+
+  try {
+    if (agent.systemPrompt.trim()) {
+      const prompt = await writePromptToTempFile(agent.name, agent.systemPrompt);
+      promptDir = prompt.dir;
+      args.push("--append-system-prompt", prompt.filePath);
+    }
+
+    args.push(`Task: ${task}`);
+
+    let stdoutBuffer = "";
+    let wasAborted = false;
+    let abortCleanup: (() => void) | undefined;
+    let killTimer: ReturnType<typeof setTimeout> | undefined;
+
+    result.exitCode = await new Promise<number>((resolve) => {
+      const invocation = getPiInvocation(args);
+      const proc = spawn(invocation.command, invocation.args, {
+        cwd: defaultCwd,
+        shell: false,
+        stdio: ["ignore", "pipe", "pipe"],
+        windowsHide: true,
+      });
+
+      const processLine = (line: string) => {
+        if (!line.trim()) return;
+
+        let event: any;
+        try {
+          event = JSON.parse(line);
+        } catch {
+          return;
+        }
+
+        if (event.type === "message_end" && event.message) {
+          const message = event.message as Message;
+          messages.push(message);
+          updateUsageFromMessage(result, message);
+          result.finalOutput = finalAssistantOutput(messages);
+          onOutput?.(result);
+          return;
+        }
+
+        if (event.type === "agent_end" && messages.length === 0 && Array.isArray(event.messages)) {
+          for (const message of event.messages as Message[]) {
+            messages.push(message);
+            updateUsageFromMessage(result, message);
+          }
+          result.finalOutput = finalAssistantOutput(messages);
+          onOutput?.(result);
+        }
+      };
+
+      proc.stdout.setEncoding("utf8");
+      proc.stderr.setEncoding("utf8");
+
+      proc.stdout.on("data", (chunk: string) => {
+        stdoutBuffer += chunk;
+        const lines = stdoutBuffer.split("\n");
+        stdoutBuffer = lines.pop() ?? "";
+        for (const line of lines) processLine(line);
+      });
+
+      proc.stderr.on("data", (chunk: string) => {
+        result.stderr = appendStderrTail(result.stderr, chunk);
+      });
+
+      proc.on("error", (error) => {
+        result.stderr = appendStderrTail(result.stderr, `${error.message}\n`);
+        resolve(1);
+      });
+
+      proc.on("close", (code) => {
+        if (stdoutBuffer.trim()) processLine(stdoutBuffer);
+        if (killTimer) clearTimeout(killTimer);
+        abortCleanup?.();
+        resolve(code ?? 0);
+      });
+
+      const killProcess = () => {
+        wasAborted = true;
+        proc.kill("SIGTERM");
+        killTimer = setTimeout(() => {
+          if (proc.exitCode === null) proc.kill("SIGKILL");
+        }, 5_000);
+        killTimer.unref?.();
+      };
+
+      if (signal?.aborted) {
+        killProcess();
+      } else if (signal) {
+        signal.addEventListener("abort", killProcess, { once: true });
+        abortCleanup = () => signal.removeEventListener("abort", killProcess);
+      }
+    });
+
+    if (wasAborted) {
+      result.stopReason = "aborted";
+      result.errorMessage = "Agent run was aborted.";
+    }
+
+    return result;
+  } finally {
+    if (promptDir) {
+      try {
+        fs.rmSync(promptDir, { recursive: true, force: true });
+      } catch {
+        // Ignore cleanup failures.
+      }
+    }
+  }
+}
+
+async function mapWithConcurrencyLimit<TIn, TOut>(
+  items: TIn[],
+  concurrency: number,
+  fn: (item: TIn, index: number) => Promise<TOut>,
+): Promise<TOut[]> {
+  if (items.length === 0) return [];
+
+  const limit = Math.max(1, Math.min(concurrency, items.length));
+  const results: TOut[] = new Array(items.length);
+  let nextIndex = 0;
+
+  const workers = new Array(limit).fill(undefined).map(async () => {
+    while (true) {
+      const currentIndex = nextIndex++;
+      if (currentIndex >= items.length) return;
+      results[currentIndex] = await fn(items[currentIndex], currentIndex);
+    }
+  });
+
+  await Promise.all(workers);
+  return results;
+}
+
+function findAgentOrThrow(agents: AgentConfig[], agentName: string): AgentConfig {
+  const agent = agents.find((candidate) => candidate.name === agentName);
+  if (agent) return agent;
+  throw new Error(`Unknown agent "${agentName}". Available agents:\n${formatAgentList(agents)}`);
+}
+
+async function confirmProjectAgents(
+  ctx: ExtensionContext,
+  discovery: AgentDiscoveryResult,
+  agents: AgentConfig[],
+  agentScope: AgentScope,
+  agentNames: string[],
+  enabled: boolean,
+): Promise<void> {
+  if (!enabled || !ctx.hasUI || (agentScope !== "project" && agentScope !== "both")) return;
+
+  const projectAgents = agentNames
+    .map((name) => agents.find((agent) => agent.name === name))
+    .filter((agent): agent is AgentConfig => agent?.source === "project");
+
+  if (projectAgents.length === 0) return;
+
+  const ok = await ctx.ui.confirm(
+    "Run project-local agents?",
+    [
+      `Agents: ${projectAgents.map((agent) => agent.name).join(", ")}`,
+      `Source: ${discovery.projectAgentsDir ?? "unknown"}`,
+      "",
+      "Project agents are repo-controlled prompts. Only continue for trusted repositories.",
+    ].join("\n"),
+  );
+
+  if (!ok) throw new Error("Canceled: project-local agents were not approved.");
+}
+
+async function createPlanFile(
+  ctx: ExtensionContext,
+  params: {
+    request: string;
+    path?: string;
+    plannerAgent?: string;
+    builderAgent?: string;
+    agentScope?: AgentScope;
+    overwrite?: boolean;
+    confirmProjectAgents?: boolean;
+  },
+  signal?: AbortSignal,
+  onUpdate?: OnUpdateCallback<PlanCreateDetails>,
+): Promise<{ text: string; details: PlanCreateDetails }> {
+  const request = params.request.trim();
+  if (!request) throw new Error("A non-empty request is required.");
+
+  const plannerAgent = params.plannerAgent?.trim() || DEFAULT_PLANNER_AGENT;
+  const builderAgent = params.builderAgent?.trim() || DEFAULT_BUILDER_AGENT;
+  const agentScope = params.agentScope ?? "user";
+  const discovery = discoverAgents(ctx.cwd, agentScope);
+  const agents = discovery.agents;
+  const absolutePath = params.path ? resolvePath(ctx.cwd, params.path) : defaultPlanPath(ctx.cwd, request);
+  const relativePath = displayPath(ctx.cwd, absolutePath);
+  const details: PlanCreateDetails = {
+    path: relativePath,
+    plannerAgent,
+    builderAgent,
+    taskCount: 0,
+    warnings: [],
+  };
+
+  findAgentOrThrow(agents, plannerAgent);
+  findAgentOrThrow(agents, builderAgent);
+  await confirmProjectAgents(ctx, discovery, agents, agentScope, [plannerAgent, builderAgent], params.confirmProjectAgents ?? true);
+
+  if (fs.existsSync(absolutePath) && !params.overwrite) {
+    throw new Error(`Plan file already exists: ${relativePath}. Pass overwrite: true or choose another path.`);
+  }
+
+  onUpdate?.({ content: [{ type: "text", text: `Running ${plannerAgent} to create ${relativePath}...` }], details });
+
+  const plannerResult = await runAgent(ctx.cwd, agents, plannerAgent, createPlannerTask(request, builderAgent), signal, (result) => {
+    onUpdate?.({
+      content: [
+        {
+          type: "text",
+          text: result.finalOutput
+            ? `Planner output received for ${relativePath}.`
+            : `Running ${plannerAgent} to create ${relativePath}...`,
+        },
+      ],
+      details,
+    });
+  });
+
+  if (isAgentErrored(plannerResult)) {
+    throw new Error(`Planner agent failed.\n\n${truncateText(summarizeFailure(plannerResult))}`);
+  }
+
+  const planBody = plannerResult.finalOutput.trim();
+  if (!planBody) throw new Error("Planner agent completed without producing a plan.");
+
+  const content = `${planFileHeader(request, plannerAgent, builderAgent)}${planBody}\n`;
+  const tasks = parsePlanTasks(content);
+  details.taskCount = tasks.length;
+
+  if (tasks.length === 0) {
+    details.warnings.push(
+      'No parseable builder tasks found. Expected headings like "### Task T01: Title" followed by "Status: pending".',
+    );
+  }
+
+  await withFileMutationQueue(absolutePath, async () => {
+    await fs.promises.mkdir(path.dirname(absolutePath), { recursive: true });
+    await fs.promises.writeFile(absolutePath, content, "utf8");
+  });
+
+  const warningText = details.warnings.length ? `\n\nWarnings:\n- ${details.warnings.join("\n- ")}` : "";
+  const text = `Created plan file ${relativePath} with ${tasks.length} builder task${tasks.length === 1 ? "" : "s"}.${warningText}`;
+
+  return { text, details };
+}
+
+function createBuilderTask(planPath: string, task: PlanTask, fullPlan: string): string {
+  return [
+    "You are implementing one task from a planner-created multi-agent plan file.",
+    "",
+    `Plan file: ${planPath}`,
+    `Assigned task: ${task.id} - ${task.title}`,
+    "",
+    "Rules:",
+    "- Implement only the assigned task unless a direct dependency is required to make it work.",
+    "- Do not edit the plan file; the planner-builder extension updates task statuses.",
+    "- Avoid unrelated refactors and unrelated files, especially because other builder agents may run concurrently.",
+    "- Read relevant files before editing and follow existing patterns.",
+    "- Run focused verification. If no useful automated check exists, explain the manual verification performed.",
+    "- If blocked, do not force changes. Explain the blocker.",
+    "- End your final response with exactly one marker line: PLAN_TASK_RESULT: done, PLAN_TASK_RESULT: failed, or PLAN_TASK_RESULT: blocked.",
+    "",
+    "Assigned task block:",
+    "",
+    task.block,
+    "",
+    "Full plan context:",
+    "",
+    truncateText(fullPlan, 30 * 1024, 1_000),
+  ].join("\n");
+}
+
+function classifyBuilderResult(result: AgentRunResult): { status: TaskStatus; marker?: string } {
+  if (isAgentErrored(result)) return { status: "failed" };
+
+  const marker = result.finalOutput.match(/PLAN_TASK_RESULT:\s*(done|failed|blocked)/i)?.[1]?.toLowerCase();
+  if (marker === "blocked") return { status: "blocked", marker };
+  if (marker === "failed") return { status: "failed", marker };
+  if (marker === "done") return { status: "done", marker };
+
+  return { status: "done" };
+}
+
+function taskDependenciesSatisfied(task: PlanTask, tasksById: Map<string, PlanTask>): boolean {
+  return task.dependsOn.every((dependencyId) => {
+    const dependency = tasksById.get(normalizeTaskId(dependencyId));
+    return !dependency || dependency.status === "done";
+  });
+}
+
+function taskBlockerReason(task: PlanTask, tasksById: Map<string, PlanTask>): string {
+  const blockers = task.dependsOn.filter((dependencyId) => {
+    const dependency = tasksById.get(normalizeTaskId(dependencyId));
+    return dependency && dependency.status !== "done";
+  });
+
+  if (blockers.length === 0) return "No runnable dependency path found.";
+  return `Waiting for dependencies: ${blockers.join(", ")}`;
+}
+
+function isDefaultRunnableStatus(status: string): boolean {
+  return status === "pending" || status === "failed" || status === "blocked";
+}
+
+function buildDetails(
+  planPath: string,
+  builderAgent: string,
+  maxConcurrency: number,
+  results: PlanBuildResult[],
+  skipped: PlanBuildDetails["skipped"],
+): PlanBuildDetails {
+  return {
+    path: planPath,
+    builderAgent,
+    maxConcurrency,
+    results: results.map((result) => ({
+      id: result.task.id,
+      title: result.task.title,
+      status: result.status,
+      exitCode: result.run.exitCode,
+      output: truncateText(result.run.finalOutput || result.run.stderr, 12 * 1024, 400),
+    })),
+    skipped,
+  };
+}
+
+async function buildPlanFile(
+  ctx: ExtensionContext,
+  params: {
+    path: string;
+    taskIds?: string[];
+    builderAgent?: string;
+    agentScope?: AgentScope;
+    maxConcurrency?: number;
+    confirmProjectAgents?: boolean;
+  },
+  signal?: AbortSignal,
+  onUpdate?: OnUpdateCallback<PlanBuildDetails>,
+): Promise<{ text: string; details: PlanBuildDetails }> {
+  const absolutePath = resolvePath(ctx.cwd, params.path);
+  const relativePath = displayPath(ctx.cwd, absolutePath);
+  const builderAgent = params.builderAgent?.trim() || DEFAULT_BUILDER_AGENT;
+  const agentScope = params.agentScope ?? "user";
+  const maxConcurrency = Math.max(1, Math.min(MAX_CONCURRENCY, Math.floor(params.maxConcurrency ?? 2)));
+  const discovery = discoverAgents(ctx.cwd, agentScope);
+  const agents = discovery.agents;
+  const targetIds = new Set((params.taskIds ?? []).map(normalizeTaskId));
+  const attempted = new Set<string>();
+  const results: PlanBuildResult[] = [];
+  const skipped: PlanBuildDetails["skipped"] = [];
+
+  findAgentOrThrow(agents, builderAgent);
+  await confirmProjectAgents(ctx, discovery, agents, agentScope, [builderAgent], params.confirmProjectAgents ?? true);
+
+  if (!fs.existsSync(absolutePath)) throw new Error(`Plan file not found: ${relativePath}`);
+
+  while (true) {
+    const content = await fs.promises.readFile(absolutePath, "utf8");
+    const tasks = parsePlanTasks(content);
+    if (tasks.length === 0) throw new Error(`No builder tasks found in ${relativePath}.`);
+
+    const tasksById = new Map(tasks.map((task) => [task.id, task]));
+    const candidates = tasks.filter((task) => {
+      if (attempted.has(task.id)) return false;
+      if (targetIds.size > 0) return targetIds.has(task.id) && task.status !== "done";
+      return isDefaultRunnableStatus(task.status);
+    });
+
+    const ready = candidates.filter((task) => taskDependenciesSatisfied(task, tasksById));
+    const blocked = candidates.filter((task) => !taskDependenciesSatisfied(task, tasksById));
+
+    if (ready.length === 0) {
+      for (const task of blocked) {
+        skipped.push({ id: task.id, title: task.title, reason: taskBlockerReason(task, tasksById) });
+      }
+      break;
+    }
+
+    onUpdate?.({
+      content: [
+        {
+          type: "text",
+          text: `Running ${ready.length} ready task${ready.length === 1 ? "" : "s"} from ${relativePath} with ${builderAgent} (max ${maxConcurrency} parallel)...`,
+        },
+      ],
+      details: buildDetails(relativePath, builderAgent, maxConcurrency, results, skipped),
+    });
+
+    const waveResults = await mapWithConcurrencyLimit(ready, maxConcurrency, async (task) => {
+      attempted.add(task.id);
+      await updatePlanTaskStatus(absolutePath, task.id, "in-progress");
+
+      const latestContent = await fs.promises.readFile(absolutePath, "utf8");
+      const latestTask = parsePlanTasks(latestContent).find((candidate) => candidate.id === task.id) ?? task;
+      const run = await runAgent(ctx.cwd, agents, builderAgent, createBuilderTask(relativePath, latestTask, latestContent), signal);
+      const classification = classifyBuilderResult(run);
+      const result: PlanBuildResult = { task: latestTask, run, status: classification.status, marker: classification.marker };
+
+      await updatePlanTaskStatus(absolutePath, task.id, classification.status, builderResultLog(result));
+      return result;
+    });
+
+    results.push(...waveResults);
+
+    onUpdate?.({
+      content: [
+        {
+          type: "text",
+          text: `Completed ${results.length} task${results.length === 1 ? "" : "s"} from ${relativePath}.`,
+        },
+      ],
+      details: buildDetails(relativePath, builderAgent, maxConcurrency, results, skipped),
+    });
+  }
+
+  if (targetIds.size > 0) {
+    const content = await fs.promises.readFile(absolutePath, "utf8");
+    const knownIds = new Set(parsePlanTasks(content).map((task) => task.id));
+    for (const targetId of targetIds) {
+      if (!knownIds.has(targetId)) skipped.push({ id: targetId, title: "Unknown task", reason: "Task id not found in plan file." });
+    }
+  }
+
+  const doneCount = results.filter((result) => result.status === "done").length;
+  const failedCount = results.filter((result) => result.status === "failed").length;
+  const blockedCount = results.filter((result) => result.status === "blocked").length;
+  const summaryLines = results.map((result) => `- ${result.task.id} ${result.status}: ${result.task.title}`);
+  const skippedLines = skipped.map((item) => `- ${item.id}: ${item.reason}`);
+  const text = [
+    `Plan build finished for ${relativePath}.`,
+    `Results: ${doneCount} done, ${failedCount} failed, ${blockedCount} blocked, ${skipped.length} skipped.`,
+    summaryLines.length ? `\nTasks:\n${summaryLines.join("\n")}` : "",
+    skippedLines.length ? `\nSkipped:\n${skippedLines.join("\n")}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return { text, details: buildDetails(relativePath, builderAgent, maxConcurrency, results, skipped) };
+}
+
+async function listPlanFiles(cwd: string, limit: number): Promise<Array<{ path: string; mtimeMs: number; taskCount: number }>> {
+  const planDir = path.resolve(cwd, DEFAULT_PLAN_DIR);
+  let entries: fs.Dirent[];
+
+  try {
+    entries = await fs.promises.readdir(planDir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+
+  const plans = await Promise.all(
+    entries
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
+      .map(async (entry) => {
+        const absolutePath = path.join(planDir, entry.name);
+        const [stat, content] = await Promise.all([
+          fs.promises.stat(absolutePath),
+          fs.promises.readFile(absolutePath, "utf8").catch(() => ""),
+        ]);
+        return {
+          path: displayPath(cwd, absolutePath),
+          mtimeMs: stat.mtimeMs,
+          taskCount: parsePlanTasks(content).length,
+        };
+      }),
+  );
+
+  return plans.sort((a, b) => b.mtimeMs - a.mtimeMs).slice(0, Math.max(1, limit));
+}
+
+async function latestPlanFile(cwd: string): Promise<string | undefined> {
+  const plans = await listPlanFiles(cwd, 1);
+  return plans[0]?.path;
+}
+
+async function notifyCommandError(ctx: ExtensionContext, error: unknown): Promise<void> {
+  const message = error instanceof Error ? error.message : String(error);
+  ctx.ui.notify(message, "error");
+}
+
+export default function (pi: ExtensionAPI) {
+  pi.registerTool({
+    name: "plan_file_create",
+    label: "Create Plan File",
+    description: "Run the planner agent and save a structured plan file with builder task blocks.",
+    promptSnippet: "Run planner agent and write a multi-builder plan file under .pi/plans.",
+    promptGuidelines: [
+      "Use plan_file_create when the user asks to create a planner-generated plan file for builder agents.",
+      "Use plan_file_build after plan_file_create when the user asks multiple builder agents to implement plan tasks.",
+    ],
+    parameters: PlanCreateParams,
+    async execute(_toolCallId, params, signal, onUpdate, ctx) {
+      const result = await createPlanFile(ctx, params, signal, onUpdate);
+      return { content: [{ type: "text", text: result.text }], details: result.details };
+    },
+  });
+
+  pi.registerTool({
+    name: "plan_file_build",
+    label: "Build Plan File",
+    description:
+      "Run builder agents for ready tasks in a planner-created plan file. Tasks with satisfied dependencies run in parallel waves.",
+    promptSnippet: "Run builder agents against pending tasks in a planner-created plan file.",
+    promptGuidelines: [
+      "Use plan_file_build when the user asks builder agents to implement tasks from a plan file.",
+      "Use plan_file_build only after a plan file exists, usually from plan_file_create.",
+    ],
+    parameters: PlanBuildParams,
+    async execute(_toolCallId, params, signal, onUpdate, ctx) {
+      const result = await buildPlanFile(ctx, params, signal, onUpdate);
+      return { content: [{ type: "text", text: result.text }], details: result.details };
+    },
+  });
+
+  pi.registerTool({
+    name: "plan_file_list",
+    label: "List Plan Files",
+    description: "List recent planner-builder plan files in .pi/plans.",
+    parameters: PlanListParams,
+    async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
+      const plans = await listPlanFiles(ctx.cwd, Math.floor(params.limit ?? 10));
+      const text = plans.length
+        ? plans.map((plan) => `${plan.path} (${plan.taskCount} task${plan.taskCount === 1 ? "" : "s"})`).join("\n")
+        : `No plan files found in ${DEFAULT_PLAN_DIR}.`;
+      return { content: [{ type: "text", text }], details: { plans } };
+    },
+  });
+
+  pi.registerCommand("plan-create", {
+    description: "Run planner agent and create a plan file. Usage: /plan-create <request>",
+    handler: async (args, ctx) => {
+      await ctx.waitForIdle();
+
+      const request = args.trim() || (ctx.hasUI ? await ctx.ui.editor("Plan request:", "") : undefined);
+      if (!request?.trim()) {
+        ctx.ui.notify("Usage: /plan-create <request>", "warning");
+        return;
+      }
+
+      try {
+        ctx.ui.setStatus("planner-builder", "planning...");
+        const result = await createPlanFile(ctx, { request }, ctx.signal);
+        pi.sendMessage({ customType: "planner-builder", content: result.text, display: true, details: result.details });
+      } catch (error) {
+        await notifyCommandError(ctx, error);
+      } finally {
+        ctx.ui.setStatus("planner-builder", undefined);
+      }
+    },
+  });
+
+  pi.registerCommand("plan-build", {
+    description: "Run builder agents for a plan file. Usage: /plan-build [plan-file] [T01,T02]",
+    handler: async (args, ctx) => {
+      await ctx.waitForIdle();
+
+      const tokens = args.trim().split(/\s+/).filter(Boolean);
+      let planPath = tokens.shift();
+      let taskIds = parseTaskIds(tokens.join(","));
+
+      if (planPath && /^T\d+/i.test(planPath)) {
+        taskIds = [planPath, ...taskIds];
+        planPath = undefined;
+      }
+
+      if (!planPath) planPath = await latestPlanFile(ctx.cwd);
+
+      if (!planPath) {
+        ctx.ui.notify(`Usage: /plan-build <plan-file> [T01,T02]. No files found in ${DEFAULT_PLAN_DIR}.`, "warning");
+        return;
+      }
+
+      try {
+        ctx.ui.setStatus("planner-builder", "building...");
+        const result = await buildPlanFile(ctx, { path: planPath, taskIds }, ctx.signal);
+        pi.sendMessage({ customType: "planner-builder", content: result.text, display: true, details: result.details });
+      } catch (error) {
+        await notifyCommandError(ctx, error);
+      } finally {
+        ctx.ui.setStatus("planner-builder", undefined);
+      }
+    },
+  });
+
+  pi.registerCommand("plan-list", {
+    description: "List recent planner-builder plan files.",
+    handler: async (_args, ctx) => {
+      const plans = await listPlanFiles(ctx.cwd, 10);
+      const text = plans.length
+        ? plans.map((plan) => `${plan.path} (${plan.taskCount} task${plan.taskCount === 1 ? "" : "s"})`).join("\n")
+        : `No plan files found in ${DEFAULT_PLAN_DIR}.`;
+      ctx.ui.notify(text, "info");
+    },
+  });
+
+  pi.on("before_agent_start", (event) => {
+    const activeTools = new Set(pi.getActiveTools());
+    if (!activeTools.has("plan_file_create") && !activeTools.has("plan_file_build")) return;
+
+    return {
+      systemPrompt: `${event.systemPrompt}\n\nPlanner-builder workflow:\n- Use plan_file_create when the user wants a planner agent to create a plan file for builder agents.\n- Use plan_file_build when the user wants builder agents to implement tasks from that plan file.\n- Plan files live in ${DEFAULT_PLAN_DIR} by default and contain machine-readable \"### Task TNN:\" blocks.`,
+    };
+  });
+}
