@@ -50,6 +50,7 @@ interface AgentRunResult {
   model?: string;
   stopReason?: string;
   errorMessage?: string;
+  progressMessage?: string;
 }
 
 interface PlanTask {
@@ -170,6 +171,41 @@ function truncateText(text: string, maxBytes = 50 * 1024, maxLines = 2_000): str
   return `${truncation.content}\n\n[Output truncated: ${truncation.outputLines} of ${truncation.totalLines} lines (${formatSize(
     truncation.outputBytes,
   )} of ${formatSize(truncation.totalBytes)}).]`;
+}
+
+function truncateInline(text: string, maxLength = 120): string {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, Math.max(0, maxLength - 3))}...`;
+}
+
+function formatJsonValue(value: unknown, maxLength = 80): string {
+  if (value === undefined || value === null) return "";
+  if (typeof value === "string") return truncateInline(value, maxLength);
+
+  try {
+    return truncateInline(JSON.stringify(value), maxLength);
+  } catch {
+    return truncateInline(String(value), maxLength);
+  }
+}
+
+function formatToolArgs(args: unknown): string {
+  if (!args || typeof args !== "object") return "";
+
+  const record = args as Record<string, unknown>;
+  const parts: string[] = [];
+  for (const key of ["path", "pattern", "query", "command", "glob", "limit"]) {
+    const value = formatJsonValue(record[key], 48);
+    if (value) parts.push(`${key}=${value}`);
+  }
+
+  if (parts.length === 0) {
+    const fallback = formatJsonValue(args, 96);
+    if (fallback) parts.push(fallback);
+  }
+
+  return parts.length ? ` (${parts.join(", ")})` : "";
 }
 
 function messageText(message: Message): string {
@@ -502,6 +538,16 @@ async function runAgent(
     let wasAborted = false;
     let abortCleanup: (() => void) | undefined;
     let killTimer: ReturnType<typeof setTimeout> | undefined;
+    let lastOutputUpdateAt = 0;
+
+    const emitOutput = (force = false) => {
+      if (!onOutput) return;
+
+      const now = Date.now();
+      if (!force && now - lastOutputUpdateAt < 500) return;
+      lastOutputUpdateAt = now;
+      onOutput(result);
+    };
 
     result.exitCode = await new Promise<number>((resolve) => {
       const invocation = getPiInvocation(args);
@@ -522,12 +568,66 @@ async function runAgent(
           return;
         }
 
+        if (event.type === "agent_start") {
+          result.progressMessage = `${agent.name} started.`;
+          emitOutput(true);
+          return;
+        }
+
+        if (event.type === "turn_start") {
+          result.progressMessage = `${agent.name} is thinking...`;
+          emitOutput(true);
+          return;
+        }
+
+        if (event.type === "message_update") {
+          const assistantEvent = event.assistantMessageEvent;
+          const delta = typeof assistantEvent?.delta === "string" ? assistantEvent.delta : "";
+          const text = delta || (event.message ? messageText(event.message as Message) : "");
+          result.progressMessage = text
+            ? `${agent.name} is writing: ${truncateInline(text, 80)}`
+            : `${agent.name} is writing...`;
+          emitOutput();
+          return;
+        }
+
+        if (event.type === "tool_execution_start") {
+          result.progressMessage = `${agent.name} is running ${event.toolName ?? "tool"}${formatToolArgs(event.args)}...`;
+          emitOutput(true);
+          return;
+        }
+
+        if (event.type === "tool_execution_update") {
+          result.progressMessage = `${agent.name} is still running ${event.toolName ?? "tool"}${formatToolArgs(event.args)}...`;
+          emitOutput();
+          return;
+        }
+
+        if (event.type === "tool_execution_end") {
+          result.progressMessage = `${agent.name} ${event.isError ? "failed" : "finished"} ${event.toolName ?? "tool"}.`;
+          emitOutput(true);
+          return;
+        }
+
+        if (event.type === "auto_retry_start") {
+          result.progressMessage = `${agent.name} retrying after error: ${truncateInline(event.errorMessage ?? "unknown error", 80)}`;
+          emitOutput(true);
+          return;
+        }
+
+        if (event.type === "compaction_start") {
+          result.progressMessage = `${agent.name} is compacting context...`;
+          emitOutput(true);
+          return;
+        }
+
         if (event.type === "message_end" && event.message) {
           const message = event.message as Message;
           messages.push(message);
           updateUsageFromMessage(result, message);
           result.finalOutput = finalAssistantOutput(messages);
-          onOutput?.(result);
+          result.progressMessage = result.finalOutput ? `${agent.name} output received.` : `${agent.name} completed a message.`;
+          emitOutput(true);
           return;
         }
 
@@ -537,7 +637,8 @@ async function runAgent(
             updateUsageFromMessage(result, message);
           }
           result.finalOutput = finalAssistantOutput(messages);
-          onOutput?.(result);
+          result.progressMessage = result.finalOutput ? `${agent.name} output received.` : `${agent.name} finished.`;
+          emitOutput(true);
         }
       };
 
@@ -553,10 +654,21 @@ async function runAgent(
 
       proc.stderr.on("data", (chunk: string) => {
         result.stderr = appendStderrTail(result.stderr, chunk);
+        const lastLine = chunk
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .pop();
+        if (lastLine) {
+          result.progressMessage = `${agent.name} stderr: ${truncateInline(lastLine, 90)}`;
+          emitOutput();
+        }
       });
 
       proc.on("error", (error) => {
         result.stderr = appendStderrTail(result.stderr, `${error.message}\n`);
+        result.progressMessage = `${agent.name} process error: ${truncateInline(error.message, 90)}`;
+        emitOutput(true);
         resolve(1);
       });
 
@@ -702,15 +814,14 @@ async function createPlanFile(
   onUpdate?.({ content: [{ type: "text", text: `Running ${plannerAgent} to create ${relativePath}...` }], details });
 
   const plannerResult = await runAgent(ctx.cwd, agents, plannerAgent, createPlannerTask(request, builderAgent), signal, (result) => {
+    const status = result.finalOutput
+      ? `Planner output received for ${relativePath}.`
+      : result.progressMessage
+        ? `${result.progressMessage} Creating ${relativePath}.`
+        : `Running ${plannerAgent} to create ${relativePath}...`;
+
     onUpdate?.({
-      content: [
-        {
-          type: "text",
-          text: result.finalOutput
-            ? `Planner output received for ${relativePath}.`
-            : `Running ${plannerAgent} to create ${relativePath}...`,
-        },
-      ],
+      content: [{ type: "text", text: status }],
       details,
     });
   });
@@ -972,9 +1083,52 @@ async function latestPlanFile(cwd: string): Promise<string | undefined> {
   return plans[0]?.path;
 }
 
+function commandErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 async function notifyCommandError(ctx: ExtensionContext, error: unknown): Promise<void> {
-  const message = error instanceof Error ? error.message : String(error);
-  ctx.ui.notify(message, "error");
+  ctx.ui.notify(commandErrorMessage(error), "error");
+}
+
+function compactStatusText(text: string): string {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (normalized.length <= 96) return normalized;
+  return `${normalized.slice(0, 93)}...`;
+}
+
+function statusTextFromUpdate<TDetails>(partial: ToolUpdate<TDetails>): string | undefined {
+  const text = partial.content
+    .map((item) => item.text)
+    .join(" ")
+    .trim();
+
+  return text ? compactStatusText(text) : undefined;
+}
+
+function startCommandProgress(ctx: ExtensionContext, key: string, initialText: string): { update: (text: string) => void; stop: () => void } {
+  const startedAt = Date.now();
+  let currentText = initialText;
+
+  const render = () => {
+    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - startedAt) / 1_000));
+    ctx.ui.setStatus(key, `${currentText} (${elapsedSeconds}s)`);
+  };
+
+  render();
+  const timer = setInterval(render, 1_000);
+  timer.unref?.();
+
+  return {
+    update(text: string) {
+      currentText = compactStatusText(text);
+      render();
+    },
+    stop() {
+      clearInterval(timer);
+      ctx.ui.setStatus(key, undefined);
+    },
+  };
 }
 
 export default function (pi: ExtensionAPI) {
@@ -1028,23 +1182,52 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand("plan-create", {
     description: "Run planner agent and create a plan file. Usage: /plan-create <request>",
     handler: async (args, ctx) => {
-      await ctx.waitForIdle();
-
       const request = args.trim() || (ctx.hasUI ? await ctx.ui.editor("Plan request:", "") : undefined);
       if (!request?.trim()) {
         ctx.ui.notify("Usage: /plan-create <request>", "warning");
         return;
       }
 
-      try {
-        ctx.ui.setStatus("planner-builder", "planning...");
-        const result = await createPlanFile(ctx, { request }, ctx.signal);
-        pi.sendMessage({ customType: "planner-builder", content: result.text, display: true, details: result.details });
-      } catch (error) {
-        await notifyCommandError(ctx, error);
-      } finally {
-        ctx.ui.setStatus("planner-builder", undefined);
+      const run = async () => {
+        let progress: ReturnType<typeof startCommandProgress> | undefined;
+
+        try {
+          progress = startCommandProgress(ctx, "planner-builder", ctx.isIdle() ? "planning..." : "waiting for current turn...");
+
+          if (!ctx.isIdle()) {
+            ctx.ui.notify("/plan-create queued; waiting for the current turn to finish.", "info");
+            await ctx.waitForIdle();
+          } else {
+            ctx.ui.notify("/plan-create started in the background.", "info");
+          }
+
+          progress.update("planning...");
+          const result = await createPlanFile(ctx, { request }, undefined, (partial) => {
+            const statusText = statusTextFromUpdate(partial);
+            if (statusText) progress?.update(statusText);
+          });
+          pi.sendMessage({ customType: "planner-builder", content: result.text, display: true, details: result.details });
+          ctx.ui.notify(result.text, "info");
+        } catch (error) {
+          const message = commandErrorMessage(error);
+          pi.sendMessage({
+            customType: "planner-builder",
+            content: `/plan-create failed.\n\n${message}`,
+            display: true,
+            details: { error: message },
+          });
+          await notifyCommandError(ctx, error);
+        } finally {
+          progress?.stop();
+        }
+      };
+
+      if (ctx.hasUI) {
+        void run();
+        return;
       }
+
+      await run();
     },
   });
 

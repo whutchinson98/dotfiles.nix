@@ -6,7 +6,7 @@ Creates planner-generated plan files and dispatches plan tasks to builder agents
 
 | Command | Purpose |
 | --- | --- |
-| `/plan-create <request>` | Run the `planner` agent and write a plan file under `.pi/plans/`. |
+| `/plan-create <request>` | Run the `planner` agent in the background and write a plan file under `.pi/plans/`. Child-agent activity is shown in the status bar and the result or failure is posted when complete. |
 | `/plan-build [plan-file] [T01,T02]` | Run `builder` agents for ready tasks in the plan file. If no file is provided, the latest `.pi/plans/*.md` file is used. |
 | `/plan-list` | List recent plan files. |
 
