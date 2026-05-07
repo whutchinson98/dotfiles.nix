@@ -24,15 +24,15 @@ Equivalent commands:
 
 ```text
 # Linux / NixOS
-mcp-remote https://mcp.linear.app/sse
+mcp-remote https://mcp.linear.app/mcp
 mcp-remote https://mcp.ai.pulumi.com/mcp
 
 # macOS / other
-npx -y mcp-remote https://mcp.linear.app/sse
+npx -y mcp-remote https://mcp.linear.app/mcp
 npx -y mcp-remote https://mcp.ai.pulumi.com/mcp
 ```
 
-`modules/home/dev/ai.nix` installs `mcp-remote` as a Nix/Home Manager command wrapper for Linux/NixOS. The wrapper runs `bunx -p mcp-remote mcp-remote` with `bun` and `nodejs` in PATH so it does not recursively call itself.
+`modules/home/dev/ai.nix` installs `mcp-remote` as a Nix/Home Manager command wrapper for Linux/NixOS. The wrapper runs `npx -y mcp-remote` with Nix's `nodejs` in PATH.
 
 Registered tool prefixes and commands:
 

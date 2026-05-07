@@ -9,17 +9,18 @@ let
   piExtensionsPath = ../../../configs/pi/extensions;
 
   # Nix-friendly wrapper for the npm MCP proxy used by remote MCP pi extensions.
-  # It avoids relying on npx being present on NixOS. Use bunx with an explicit
-  # package+binary pair so the wrapper does not recursively invoke itself when
-  # the wrapper name matches the npm binary name.
+  # Use npx from Nix's nodejs package. bunx is tempting, but `bunx -p
+  # mcp-remote mcp-remote` resolves the mcp-remote executable from PATH first on
+  # this system, which recursively calls this wrapper and exits before the MCP
+  # stdio server starts.
   mcpRemote = pkgs.writeShellApplication {
     name = "mcp-remote";
     runtimeInputs = with pkgs; [
-      bun
       nodejs
     ];
     text = ''
-      exec bunx -p mcp-remote mcp-remote "$@"
+      export NPM_CONFIG_UPDATE_NOTIFIER=false
+      exec npx -y mcp-remote "$@"
     '';
   };
 in

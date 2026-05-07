@@ -1,7 +1,7 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { mcpRemoteCommand, registerMcpBridge } from "./mcp_bridge/bridge";
 
-const LINEAR_MCP_URL = "https://mcp.linear.app/sse";
+const LINEAR_MCP_URL = "https://mcp.linear.app/mcp";
 
 export default function (pi: ExtensionAPI) {
   registerMcpBridge(pi, {
