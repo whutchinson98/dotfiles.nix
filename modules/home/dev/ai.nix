@@ -1,12 +1,10 @@
 {
-  lib,
   pkgs,
   ...
 }:
 
 let
   piAgentPath = ../../../configs/pi/agent;
-  piExtensionsPath = ../../../configs/pi/extensions;
 
   # Nix-friendly wrapper for the npm MCP proxy used by remote MCP pi extensions.
   # Use npx from Nix's nodejs package. bunx is tempting, but `bunx -p
@@ -25,6 +23,7 @@ let
   };
 in
 {
+  # note: libnotify is part of desktop.nix do not add here
   home.packages =
     (with pkgs; [
       fd
@@ -32,8 +31,6 @@ in
       pi-coding-agent
     ])
     ++ [ mcpRemote ];
-
-  # note: libnotify is part of desktop.nix do not add here
 
   home.file.".pi/agent/APPEND_SYSTEM.md" = {
     source = piAgentPath + /APPEND_SYSTEM.md;
@@ -43,13 +40,21 @@ in
     source = piAgentPath + /keybindings.json;
   };
 
+  # skils
   home.file.".pi/agent/skills" = {
     source = piAgentPath + /skills;
     recursive = true;
   };
 
+  # agents
+  home.file.".pi/agent/agents" = {
+    source = piAgentPath + "/agents";
+    recursive = true;
+  };
+
+  # extensions
   home.file.".pi/agent/extensions" = {
-    source = piExtensionsPath;
+    source = piAgentPath + "/extensions";
     recursive = true;
   };
 }
