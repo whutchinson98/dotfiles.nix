@@ -55,6 +55,7 @@
       set -g set-clipboard on
       set -g allow-passthrough on
       set -as terminal-features ',*:clipboard'
+      set -g extended-keys on
 
       bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
       bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-selection-and-cancel
