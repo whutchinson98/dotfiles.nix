@@ -16,6 +16,19 @@ extensions/
 
 Extension files should default-export a function that receives `ExtensionAPI`.
 
+## Subagents
+
+`subagent/` registers:
+
+| Tool | Purpose |
+| --- | --- |
+| `agent_list` | List agents discovered from `~/.pi/agent/agents` and, when requested, trusted project `.pi/agents` directories. |
+| `subagent` | Spawn one or more agents in isolated `pi --mode json --no-session` subprocesses. |
+
+Subagent subprocesses use `--no-extensions` by default; pass `includeExtensions: true` to the tool only when a delegated agent needs extension-provided tools.
+
+It also registers `/agents [user|project|both]` for interactive discovery.
+
 ## Remote MCP extensions
 
 `linear_mcp.ts` and `pulumi_mcp.ts` use the reusable helper in `mcp_bridge/bridge.ts` to start remote MCP servers. On Linux it uses the Nix/Home Manager `mcp-remote` command; on macOS and other platforms it uses `npx -y mcp-remote`.

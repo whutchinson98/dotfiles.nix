@@ -2,13 +2,17 @@
 
 Configuration and extension sources for [pi](https://github.com/badlogic/pi-mono).
 
-Pi reads agent-level prompt additions from `~/.pi/agent/APPEND_SYSTEM.md`, keybinding overrides from `~/.pi/agent/keybindings.json`, auto-discovers global skills from `~/.pi/agent/skills`, and auto-discovers global extensions from `~/.pi/agent/extensions`. The home-manager module at `modules/home/dev/ai.nix` links `configs/pi/agent/APPEND_SYSTEM.md`, `configs/pi/agent/keybindings.json`, `configs/pi/agent/skills`, and `configs/pi/extensions` there, the same way the Neovim module links `configs/nvim` into `~/.config/nvim`.
+Pi reads agent-level prompt additions from `~/.pi/agent/APPEND_SYSTEM.md`, keybinding overrides from `~/.pi/agent/keybindings.json`, auto-discovers global skills from `~/.pi/agent/skills`, auto-discovers global agents from `~/.pi/agent/agents`, and auto-discovers global extensions from `~/.pi/agent/extensions`. The home-manager module at `modules/home/dev/ai.nix` links `configs/pi/agent/APPEND_SYSTEM.md`, `configs/pi/agent/keybindings.json`, `configs/pi/agent/skills`, `configs/pi/agent/agents`, and `configs/pi/agent/extensions` there, the same way the Neovim module links `configs/nvim` into `~/.config/nvim`.
 
 Add skills as directories containing `SKILL.md` under `agent/skills/`.
+
+Add agents as markdown files with frontmatter under `agent/agents/`.
 
 Add extensions as either:
 
 - `extensions/my-extension.ts`
 - `extensions/my-extension/index.ts` for multi-file extensions
+
+The `agent/extensions/subagent` extension registers `agent_list` and `subagent` tools so pi can list and spawn the agents in `agent/agents/`.
 
 After rebuilding home-manager/NixOS, run `/reload` inside pi to pick up changes.
