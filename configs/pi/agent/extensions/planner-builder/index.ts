@@ -1002,7 +1002,23 @@ async function buildPlanFile(
 
       const latestContent = await fs.promises.readFile(absolutePath, "utf8");
       const latestTask = parsePlanTasks(latestContent).find((candidate) => candidate.id === task.id) ?? task;
-      const run = await runAgent(ctx.cwd, agents, builderAgent, createBuilderTask(relativePath, latestTask, latestContent), signal);
+      const run = await runAgent(
+        ctx.cwd,
+        agents,
+        builderAgent,
+        createBuilderTask(relativePath, latestTask, latestContent),
+        signal,
+        (agentResult) => {
+          const status = agentResult.progressMessage
+            ? `${latestTask.id}: ${agentResult.progressMessage}`
+            : `${latestTask.id}: ${builderAgent} is running...`;
+
+          onUpdate?.({
+            content: [{ type: "text", text: status }],
+            details: buildDetails(relativePath, builderAgent, maxConcurrency, results, skipped),
+          });
+        },
+      );
       const classification = classifyBuilderResult(run);
       const result: PlanBuildResult = { task: latestTask, run, status: classification.status, marker: classification.marker };
 
@@ -1234,8 +1250,6 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand("plan-build", {
     description: "Run builder agents for a plan file. Usage: /plan-build [plan-file] [T01,T02]",
     handler: async (args, ctx) => {
-      await ctx.waitForIdle();
-
       const tokens = args.trim().split(/\s+/).filter(Boolean);
       let planPath = tokens.shift();
       let taskIds = parseTaskIds(tokens.join(","));
@@ -1252,15 +1266,47 @@ export default function (pi: ExtensionAPI) {
         return;
       }
 
-      try {
-        ctx.ui.setStatus("planner-builder", "building...");
-        const result = await buildPlanFile(ctx, { path: planPath, taskIds }, ctx.signal);
-        pi.sendMessage({ customType: "planner-builder", content: result.text, display: true, details: result.details });
-      } catch (error) {
-        await notifyCommandError(ctx, error);
-      } finally {
-        ctx.ui.setStatus("planner-builder", undefined);
+      const resolvedPlanPath = planPath;
+      const run = async () => {
+        let progress: ReturnType<typeof startCommandProgress> | undefined;
+
+        try {
+          progress = startCommandProgress(ctx, "planner-builder", ctx.isIdle() ? "building..." : "waiting for current turn...");
+
+          if (!ctx.isIdle()) {
+            ctx.ui.notify("/plan-build queued; waiting for the current turn to finish.", "info");
+            await ctx.waitForIdle();
+          } else {
+            ctx.ui.notify("/plan-build started in the background.", "info");
+          }
+
+          progress.update("building...");
+          const result = await buildPlanFile(ctx, { path: resolvedPlanPath, taskIds }, undefined, (partial) => {
+            const statusText = statusTextFromUpdate(partial);
+            if (statusText) progress?.update(statusText);
+          });
+          pi.sendMessage({ customType: "planner-builder", content: result.text, display: true, details: result.details });
+          ctx.ui.notify(`Plan build finished for ${resolvedPlanPath}.`, "info");
+        } catch (error) {
+          const message = commandErrorMessage(error);
+          pi.sendMessage({
+            customType: "planner-builder",
+            content: `/plan-build failed.\n\n${message}`,
+            display: true,
+            details: { error: message },
+          });
+          await notifyCommandError(ctx, error);
+        } finally {
+          progress?.stop();
+        }
+      };
+
+      if (ctx.hasUI) {
+        void run();
+        return;
       }
+
+      await run();
     },
   });
 
