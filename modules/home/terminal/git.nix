@@ -10,7 +10,7 @@
         "git@github.com:macro-inc/" = {
           insteadOf = "macro:";
         };
-        "git@github.com:whutchinson98/" = {
+        "git@codeberg.org:hutch/" = {
           insteadOf = "me:";
         };
       };
