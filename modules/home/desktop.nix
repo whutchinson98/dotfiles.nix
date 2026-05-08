@@ -40,6 +40,7 @@
     ledger-live-desktop
     dbeaver-bin
     proton-vpn-cli
+    protonmail-bridge
     brightnessctl
   ];
 }
