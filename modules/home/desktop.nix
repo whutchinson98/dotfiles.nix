@@ -9,7 +9,7 @@
   imports = [
     inputs.zen-browser.homeModules.beta
     ./desktop/alacritty.nix
-    ./desktop/dunst.nix
+    ./desktop/notifications.nix
     ./desktop/file-manager.nix
     ./desktop/fonts.nix
     ./desktop/niri.nix
